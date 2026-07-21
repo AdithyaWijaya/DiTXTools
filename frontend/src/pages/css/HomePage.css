@@ -1,0 +1,49 @@
+.stats-row {
+  display: flex;
+  gap: 48px;
+  margin-top: 64px;
+  padding: 28px 48px;
+  background: rgba(26, 29, 39, 0.5);
+  border: 1px solid rgba(42, 45, 62, 0.6);
+  border-radius: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .stats-row {
+    display: flex;
+    margin-top:36px;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
+    align-items: center;
+
+    gap: 12px;
+    padding: 14px 12px;
+
+    overflow-x: auto;
+  }
+
+  .stats-item {
+    flex: 0 0 auto;
+    text-align: center;
+    min-width: 64px;
+  }
+
+  .stats-value {
+    font-size: 20px;
+    white-space: nowrap;
+  }
+
+  .stats-label {
+    font-size: 10px;
+    white-space: nowrap;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 40px 20px !important;
+  }
+}

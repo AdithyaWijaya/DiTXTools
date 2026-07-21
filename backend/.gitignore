@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Database
+*.db
+
+# Virtual Environment & Environment Variables
+venv/
+.venv/
+.env
+*.local
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Editor & IDE
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+TODO.md
+test_manifesthub_limit.bat
+/admin/old
+\scripts
