@@ -27,7 +27,7 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
     # "detail") supaya frontend tidak perlu menangani bentuk error terpisah.
     return JSONResponse(
         status_code=429,
-        content={"detail": f"Terlalu banyak permintaan, coba lagi sebentar. ({exc.detail})"},
+        content={"detail": f"Too many requests, please try again later. ({exc.detail})"},
     )
 
 # Middleware

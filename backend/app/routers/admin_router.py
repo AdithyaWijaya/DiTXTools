@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta, timezone
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_db, verify_admin_credentials
+from app.limiter import limiter
 from app.models import Token
 from app.schemas import (
     AdminLoginRequest,
@@ -43,7 +44,8 @@ def _mask_secret(value: str | None) -> str | None:
 
 
 @router.post("/login", response_model=AdminLoginResponse)
-def login(data: AdminLoginRequest):
+@limiter.limit("5/minute")
+async def login(request: Request, data: AdminLoginRequest):
     """
     Login web admin dengan username/password. Tidak ada mekanisme auth baru
     di sini -- kalau kredensial cocok, server cukup mengembalikan
