@@ -144,7 +144,7 @@ const TOOLS = [
     title: "Fixes / Support",
     description:
       "Community-maintained patches, workarounds and compatibility fixes for common Steam game issues.",
-    badge: "Coming Soon",
+    badge: "Fix available",
     badgeColor: "#9CA3AF",
   },
   {
@@ -488,20 +488,23 @@ export default function HomePage({ onNavigate }: HomePageProps) {
                 border: "1px solid rgba(42,45,62,0.8)",
                 borderRadius: 16,
                 padding: 28,
-                transition: "border-color 0.2s, transform 0.2s",
+                transition: "all 0.25s ease",
                 cursor: "default",
               }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLDivElement).style.borderColor =
                   "rgba(168,85,247,0.4)";
                 (e.currentTarget as HTMLDivElement).style.transform =
-                  "translateY(-2px)";
+                  "translateY(-3px)";
+                (e.currentTarget as HTMLDivElement).style.boxShadow =
+                  "0 12px 30px rgba(168,85,247,0.12)";
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLDivElement).style.borderColor =
                   "rgba(42,45,62,0.8)";
                 (e.currentTarget as HTMLDivElement).style.transform =
                   "translateY(0)";
+                (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
               }}
             >
               <div
