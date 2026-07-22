@@ -16,7 +16,7 @@ export default function FixesPage() {
       {/* Header */}
       <div
         style={{
-          padding: "48px 24px 40px",
+          padding: "30px 24px 40px",
           textAlign: "center",
         }}
       >
@@ -48,7 +48,7 @@ export default function FixesPage() {
         style={{
           maxWidth: 760,
           margin: "0 auto",
-          padding: "48px 24px 80px",
+          padding: "16px 24px 80px",
         }}
       >
         <div

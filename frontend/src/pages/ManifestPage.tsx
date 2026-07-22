@@ -517,7 +517,7 @@ export default function ManifestPage() {
               {
                 value: 'hubcap' as const,
                 title: 'Melvinz',
-                subtitle: 'Token required (Best)',
+                subtitle: 'Need token (Best)',
               },
       
             ].filter(option => !HIDDEN_SOURCE_OPTIONS.has(option.value))).map(option => {
