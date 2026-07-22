@@ -370,15 +370,21 @@ export default function HomePage({ onNavigate }: HomePageProps) {
               display: "flex",
               alignItems: "center",
               gap: 8,
-              transition: "all 0.15s",
+              transition: "all 0.2s ease",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.borderColor = "rgba(168,85,247,0.4)";
               e.currentTarget.style.color = "#FAFAFA";
+              e.currentTarget.style.background = "rgba(168,85,247,0.06)";
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 8px 25px rgba(168,85,247,0.15)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.borderColor = "rgba(42,45,62,0.8)";
               e.currentTarget.style.color = "#9CA3AF";
+              e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "none";
             }}
           >
             Browse Fixes & Support
@@ -608,6 +614,17 @@ export default function HomePage({ onNavigate }: HomePageProps) {
                   display: "flex",
                   flexDirection: "column",
                   gap: 16,
+                  transition: "all 0.25s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = `${member.color}50`;
+                  e.currentTarget.style.transform = "translateY(-3px)";
+                  e.currentTarget.style.boxShadow = `0 12px 30px ${member.color}15`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "rgba(42,45,62,0.6)";
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "none";
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
