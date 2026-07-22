@@ -173,21 +173,21 @@ const TEAM = [
   {
     handle: "xDITT4GT++",
     role: "CEO & Project Lead",
-    avatar: "D",
+    image: "/img/xDITT4GT++.jpg",
     color: "#A855F7",
     bio: "Leads the DiTXTools project, defines product direction, coordinates development, and oversees strategic decisions.",
   },
   {
     handle: "Adithya",
     role: "Frontend & Design",
-    avatar: "M",
+    image: "/img/Adithya.jpg",
     color: "#EC4899",
     bio: "Designs and develops the user interface, focusing on user experience, visual consistency, and responsive layouts.",
   },
   {
     handle: "Wijaya",
     role: "Backend & Support",
-    avatar: "X",
+    image: "/img/Wijaya.jpg",
     color: "#3B82F6",
     bio: "Develops backend services, maintains system stability, and provides technical support for users and community members.",
   },
@@ -611,23 +611,16 @@ export default function HomePage({ onNavigate }: HomePageProps) {
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                  <div
+                  <img
+                    src={member.image}
+                    alt={member.handle}
                     style={{
                       width: 52,
                       height: 52,
                       borderRadius: 12,
-                      background: `linear-gradient(135deg, ${member.color}30, ${member.color}60)`,
-                      border: `1.5px solid ${member.color}50`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 20,
-                      fontWeight: 700,
-                      color: member.color,
+                      objectFit: "cover",
                     }}
-                  >
-                    {member.avatar}
-                  </div>
+                  />
                   <div>
                     <div
                       style={{
