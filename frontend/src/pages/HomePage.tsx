@@ -301,6 +301,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
 
         {/* CTA Buttons */}
         <div
+          className="cta-buttons"
           style={{
             display: "flex",
             gap: 12,
@@ -312,6 +313,9 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           <button
             onClick={() => onNavigate("manifest")}
             style={{
+              flex: 1,
+              whiteSpace: "nowrap",
+              justifyContent: "center",
               background: "#A855F7",
               color: "#fff",
               border: "none",
@@ -352,6 +356,9 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           <button
             onClick={() => onNavigate("fixes")}
             style={{
+              flex: 1,
+              whiteSpace: "nowrap",
+              justifyContent: "center",
               background: "transparent",
               color: "#9CA3AF",
               border: "1.5px solid rgba(42,45,62,0.8)",
@@ -360,6 +367,9 @@ export default function HomePage({ onNavigate }: HomePageProps) {
               fontSize: 15,
               fontWeight: 600,
               cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
               transition: "all 0.15s",
             }}
             onMouseEnter={(e) => {
