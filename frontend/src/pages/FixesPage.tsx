@@ -98,7 +98,7 @@ export default function FixesPage() {
                   marginBottom: 8,
                 }}
               >
-                DiTXFixer
+                DiTXFixer (Required)
               </h2>
               <p
                 style={{
