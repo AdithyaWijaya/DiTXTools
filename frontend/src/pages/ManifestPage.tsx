@@ -2,6 +2,28 @@ import { useState, useRef, useCallback } from 'react';
 import { API_URL } from "../config";
 import Footer from '../components/Footer';
 
+export function formatUtcTimestamp(timestamp: string): string {
+  const date = new Date(
+    /(?:Z|[+-]\d{2}:\d{2})$/.test(timestamp)
+      ? timestamp
+      : `${timestamp}Z`
+  );
+
+  const datePart = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
+
+  const timePart = new Intl.DateTimeFormat("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
+
+  return `${datePart} ${timePart}`;
+}
+
 type ManifestSource = 'hubcap' | 'manifesthub1' | 'sushi' | 'ryuu' | 'yaszz';
 type SearchMode = 'title' | 'appid';
 
@@ -23,6 +45,7 @@ interface StatusResult {
   update_needed?: boolean;
   file_size?: number;
   size?: number;
+  file_modified?: string;
   modified_time?: string;
   last_modified?: string;
   updated_at?: string;
@@ -319,8 +342,8 @@ export default function ManifestPage() {
       else if (needsUpd) { status = 'updating'; statusText = 'Update needed'; }
       const bytes = s.file_size ?? s.size ?? null;
       size = bytes != null ? formatBytes(bytes) : 'N/A';
-      const mod = s.modified_time ?? s.last_modified ?? s.updated_at ?? null;
-      modified = mod ? new Date(mod).toLocaleString() : 'N/A';
+      const mod = s.file_modified ?? s.modified_time ?? s.last_modified ?? s.updated_at ?? null;
+      modified = mod ? formatUtcTimestamp(mod) : "N/A";
       if (exists) canDownload = true;
     } else {
       status = 'missing';
@@ -864,7 +887,7 @@ export default function ManifestPage() {
                 },
                 { label: 'Release Date', val: <span style={{ fontFamily: 'monospace', fontSize: 13, color: '#FAFAFA' }}>{detail.release}</span> },
                 { label: 'File Size', val: <span style={{ fontFamily: 'monospace', fontSize: 13, color: '#FAFAFA' }}>{detail.size}</span> },
-                { label: 'Last Modified', val: <span style={{ fontFamily: 'monospace', fontSize: 13, color: '#FAFAFA' }}>{detail.modified}</span> },
+                { label: 'Last Updated', val: <span style={{ fontFamily: 'monospace', fontSize: 13, color: '#FAFAFA' }}>{detail.modified}</span> },
               ].map(({ label, val }) => (
                 <div key={label}>
                   <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#9CA3AF', marginBottom: 6 }}>{label}</div>
