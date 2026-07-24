@@ -2,22 +2,32 @@ import Footer from "../components/Footer";
 
 const fixes = [
   {
+    icon: "gear",
     title: "SteamTool Setup",
     description:
-      "Fast login, batch management, authorized login, game updates. Play genuine games with cloud saves, achievements, remote play, multiplayer, and workshop support. Drag & Manifest files to the steamtools icon. For lua files create lua folder on C:/Program Files (x86)/Steam/config/lua and place your lua files there if you using DiTXFixer.",
+      "Fast login, batch management, authorized login, game updates. Play genuine games with cloud saves, achievements, remote play, multiplayer, and workshop support. Drag & Manifest files to the steamtools icon. For lua files create lua folder on C:\\Program Files (x86)\\Steam\\config\\lua and place your lua files there if you using DiTXFixer.",
     url: "https://steamtools.net/res/st-setup-1.8.30.exe",
     download: "st-setup-1.8.30.exe",
   },
   {
+    icon: "wrench",
     title: "DiTXFixer (Required)",
     description:
-      "Fix that will solve the problem of games disappearing, changing to purchase, no internet connection. Extract and copy dwmapi.dll, xinput1_4.dll and OpenSteamTool.dll to your Steam root directory. Create a Lua config directory (for example C:/Program Files (x86)/Steam/config/lua) and place your Lua scripts there. NOT C:/Program Files (x86)/Steam/config/stplug-in.",
+      "Fix that will solve the problem of games disappearing, changing to purchase, no internet connection. Extract and copy dwmapi.dll, xinput1_4.dll and OpenSteamTool.dll to your Steam root directory. Create a Lua config directory (for example C:\\Program Files (x86)\\Steam\\config\\lua) and place your Lua scripts there. NOT C:\\Program Files (x86)\\Steam\\config\\stplug-in.",
     url: "https://github.com/OpenSteam001/OpenSteamTool/releases/latest/download/OpenSteamTool-1.4.8-Debug.zip",
     download: "OpenSteamTool-1.4.8-Debug.zip",
   },
+  {
+    icon: "cloud",
+    title: "Cloud Redirect (clouds Save)",
+    description:
+      "What this tool does is redirect Steam Cloud requests for games that are injected to Google Drive/OneDrive/a local folder, including AutoCloud games. Everything is native inside the Steam Client, but the actual data is read/written to and from your cloud account. This was much harder to do than just redirecting read/write to an AppID that your account owns, but it was fun to make. It also is less likely to piss off Valve.",
+    url: "https://github.com/Selectively11/CloudRedirect/releases/download/v2.6.3/CloudRedirect.exe",
+    download: "CloudRedirect.exe",
+  }
 ];
 
-function FixCard({ title, description, url, download }: (typeof fixes)[number]) {
+function FixCard({ icon, title, description, url, download }: (typeof fixes)[number]) {
   return (
     <div
       style={{
@@ -45,16 +55,20 @@ function FixCard({ title, description, url, download }: (typeof fixes)[number]) 
             flexShrink: 0,
           }}
         >
-          <svg
-            width="22"
-            height="22"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            viewBox="0 0 24 24"
-          >
-            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-          </svg>
+          {icon === "gear" ? (
+            <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          ) : icon === "cloud" ? (
+            <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+              <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+            </svg>
+          ) : (
+            <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+            </svg>
+          )}
         </div>
 
         <div>
