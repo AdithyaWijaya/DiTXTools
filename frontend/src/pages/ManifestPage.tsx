@@ -205,7 +205,7 @@ export default function ManifestPage() {
       setSource('hubcap');
       setTokenModalOpen(false);
       setTokenError('');
-      setDlStatus('Token valid. Hubcap dipilih sebagai sumber download.');
+      setDlStatus('Token is valid. Hubcap has been selected as the download source.');
     } catch (err: any) {
       setTokenError(String(err?.message ?? 'Token validation failed.'));
     } finally {
@@ -227,7 +227,7 @@ export default function ManifestPage() {
       setSource('manifesthub1');
       setManifestHubModalOpen(false);
       setManifestHubError('');
-      setDlStatus('API key saved. ManifestHub1 dipilih sebagai sumber download.');
+      setDlStatus('API key saved. ManifestHub1 has been selected as the download source.');
     } catch (err: any) {
       setManifestHubError(String(err?.message ?? 'API key validation failed.'));
     } finally {
@@ -272,7 +272,7 @@ export default function ManifestPage() {
     setQuery(val);
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
-    // Mode "Title" hanya menerima judul game, App ID (angka saja) ditolak.
+    // Title mode only accepts game titles; App ID-only input is rejected.
     if (searchMode === 'title' && val.trim().length > 0 && /^\d+$/.test(val.trim())) {
       setDropdownOpen(true);
       setDropdownItems([]);
@@ -393,7 +393,7 @@ export default function ManifestPage() {
         const text = await extractErrorMessage(res);
         const lower = text.toLowerCase();
 
-        // Token sekali pakai: tidak ditemukan, sudah digunakan, kedaluwarsa, atau wajib diisi.
+        // One-time token: not found, already used, expired, or required.
         const isTokenIssue =
           source === 'hubcap' &&
           (lower.includes('token not found') ||
@@ -409,7 +409,7 @@ export default function ManifestPage() {
           throw new Error(text);
         }
 
-        if (lower.includes('manifest tidak tersedia') || lower.includes('gagal mengambil manifest')) {
+        if (lower.includes('manifest is not available') || lower.includes('failed to fetch manifest')) {
           setDlStatus(`✗ ${unavailableManifestMessage(source)}`);
           return;
         }
@@ -430,9 +430,9 @@ export default function ManifestPage() {
       URL.revokeObjectURL(url);
       setDlStatus(`✓ ${downloadFilename} downloaded.`);
 
-      // Token sekali pakai: setelah berhasil dipakai untuk download, backend
-      // sudah menandainya "used". Bersihkan juga state token di frontend
-      // supaya download berikutnya wajib memasukkan token baru.
+      // One-time token: once used for a download, the backend has already
+      // marked it as used. Clear the frontend state too so the next download
+      // must provide a fresh token.
       if (source === 'hubcap') {
         setLicenseToken('');
       }

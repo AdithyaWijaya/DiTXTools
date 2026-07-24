@@ -163,7 +163,7 @@ const TOOLS = [
     ),
     title: "DLCs Games",
     description:
-      "Get All DLCs (Melvinz) to experience the ultimate version of the game.",
+      "Get all DLCs through Melvinz to experience the ultimate version of the game.",
     badge: "99.9%",
     badgeColor: "#EC4899",
   },

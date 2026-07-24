@@ -46,13 +46,6 @@ def _mask_secret(value: str | None) -> str | None:
 @router.post("/login", response_model=AdminLoginResponse)
 @limiter.limit("5/minute")
 async def login(request: Request, data: AdminLoginRequest):
-    """
-    Login web admin dengan username/password. Tidak ada mekanisme auth baru
-    di sini -- kalau kredensial cocok, server cukup mengembalikan
-    ADMIN_API_KEY yang sudah dipakai semua endpoint /admin lain. Frontend
-    menyimpan key ini (mis. di sessionStorage) dan mengirimkannya sebagai
-    header x-api-key di setiap request admin berikutnya.
-    """
     if not verify_admin_credentials(data.username, data.password):
         raise HTTPException(
             status_code=401,
@@ -87,12 +80,12 @@ def delete_token(
     token = db.query(Token).filter(Token.token == token_value).first()
 
     if token is None:
-        raise HTTPException(status_code=404, detail="Token tidak ditemukan.")
+        raise HTTPException(status_code=404, detail="Token not found.")
 
     db.delete(token)
     db.commit()
 
-    return {"message": "Token berhasil dihapus."}
+    return {"message": "Token deleted successfully."}
 
 
 def _token_status(token: Token) -> str:
@@ -111,7 +104,7 @@ def list_tokens(
     db: Session = Depends(get_db),
     _: None = Depends(verify_admin_key),
     status: str | None = Query(None, description="Filter: active, used, expired"),
-    search: str | None = Query(None, description="Cari berdasarkan kode token / app_id / IP"),
+    search: str | None = Query(None, description="Search by token code / app_id / IP"),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),
 ):
@@ -173,7 +166,7 @@ def update_hubcap_api_key_setting(
 ):
     api_key = data.api_key.strip()
     if not api_key:
-        raise HTTPException(status_code=400, detail="Hubcap API key wajib diisi.")
+        raise HTTPException(status_code=400, detail="Hubcap API key is required.")
 
     setting = set_setting(db, HUBCAP_API_KEY_SETTING, api_key)
 

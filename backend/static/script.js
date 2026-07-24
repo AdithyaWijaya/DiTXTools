@@ -1,20 +1,20 @@
 /* =========================================================
    DIT Admin — SPA client (single file)
 
-   Router berbasis hash (#/login, #/dashboard, #/tokens) --
-   dipilih supaya panel ini tetap bisa disajikan langsung
-   sebagai static files (StaticFiles(html=True) di main.py)
-   tanpa perlu rewrite rule di server: perubahan hash tidak
-   pernah memicu request baru ke server, jadi berpindah menu
-   tidak pernah me-reload halaman.
+   Hash-based router (#/login, #/dashboard, #/tokens) --
+   chosen so this panel can still be served directly as
+   static files (StaticFiles(html=True) in main.py) without
+   needing server rewrite rules: hash changes never trigger
+   a new request to the server, so switching menus never
+   reloads the page.
 
-   Auth model tidak berubah dari sebelumnya: login menukar
-   username/password dengan ADMIN_API_KEY yang sudah dipakai
-   semua endpoint /admin, disimpan di sessionStorage, dan
-   dikirim sebagai header x-api-key di setiap request admin.
+   The auth model has not changed: login exchanges the
+   username/password for the ADMIN_API_KEY already used by
+   every /admin endpoint, stores it in sessionStorage, and
+   sends it as an x-api-key header on every admin request.
    ========================================================= */
 
-const API_BASE = ""; // e.g. "https://api.yourdomain.com" jika backend beda origin
+const API_BASE = ""; // e.g. "https://api.yourdomain.com" if the backend is on a different origin
 
 const AUTH_KEY = "dit_admin_key";
 const AUTH_USER = "dit_admin_username";
@@ -47,8 +47,8 @@ class ApiError extends Error {
 }
 
 /**
- * Wrapper around fetch() yang menempelkan x-api-key, parse JSON,
- * dan redirect ke #/login kalau server balas 401 (key invalid/expired).
+ * Wrapper around fetch() that attaches x-api-key, parses JSON,
+ * and redirects to #/login if the server returns 401 (invalid/expired key).
  */
 async function apiFetch(path, options = {}) {
   const headers = Object.assign({}, options.headers || {});
@@ -150,7 +150,7 @@ async function copyText(text, btn) {
       btn.innerHTML = original;
     }, 1300);
   }
-  toast("Disalin ke clipboard.", "success");
+  toast("Copied to clipboard.", "success");
 }
 
 /* ---------- Formatting helpers ---------- */
@@ -190,7 +190,7 @@ function escapeHtml(str) {
    ========================================================= */
 
 function parseRoute() {
-  const raw = window.location.hash.replace(/^#\/?/, ""); // buang "#" atau "#/"
+  const raw = window.location.hash.replace(/^#\/?/, ""); // remove "#" or "#/"
   const [pathPart, queryPart] = raw.split("?");
   const page = (pathPart || "dashboard").trim() || "dashboard";
   const params = new URLSearchParams(queryPart || "");
@@ -200,7 +200,7 @@ function parseRoute() {
 function navigate(path) {
   const target = `#/${path}`;
   if (window.location.hash === target) {
-    router(); // hash sama persis tidak memicu hashchange, render manual
+    router(); // identical hash does not trigger hashchange, render manually
   } else {
     window.location.hash = target;
   }
@@ -242,7 +242,7 @@ window.addEventListener("hashchange", router);
 window.addEventListener("DOMContentLoaded", router);
 
 /* =========================================================
-   Shared shell (sidebar + topbar) untuk halaman ber-auth
+   Shared shell (sidebar + topbar) for authenticated pages
    ========================================================= */
 
 function renderShell(activePage, title, subtitle) {
@@ -490,7 +490,7 @@ async function loadHealth() {
   const listEl = document.getElementById("component-list");
 
   dotEl.className = "status-dot unknown";
-  labelEl.textContent = "Memeriksa...";
+  labelEl.textContent = "Checking...";
   listEl.innerHTML = `<div class="component-row"><span class="name">Loading component status…</span></div>`;
 
   try {
@@ -699,7 +699,7 @@ async function loadHubcapApiKeySetting() {
     const data = await apiFetch("/admin/settings/hubcap-api-key");
     statusEl.className = `badge ${data.configured ? "active" : "degraded"}`;
     statusEl.textContent = data.configured ? "Configured" : "Missing";
-    currentEl.textContent = data.masked_value || "Belum disetel";
+    currentEl.textContent = data.masked_value || "Not set";
     updatedEl.textContent = data.updated_at ? formatDate(data.updated_at) : "From environment / never changed";
   } catch (err) {
     statusEl.className = "badge degraded";

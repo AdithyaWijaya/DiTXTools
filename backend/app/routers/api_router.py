@@ -40,7 +40,7 @@ async def validate_hubcap_token(
     menebak token yang valid.
     """
     validate_token(db=db, token=data.token)
-    return {"valid": True, "message": "Token valid."}
+    return {"valid": True, "message": "Token is valid."}
 
 
 @router.post("/manifest")
@@ -57,7 +57,7 @@ async def download_manifest(
     if provider is None:
         raise HTTPException(
             status_code=400,
-            detail="Provider tidak valid."
+            detail="Invalid provider."
         )
 
     required_auth = provider.get("requires")
@@ -68,7 +68,7 @@ async def download_manifest(
         if not data.token:
             raise HTTPException(
                 status_code=400,
-                detail="Token wajib diisi."
+                detail="Token is required."
             )
 
         token_db = validate_token(
@@ -89,14 +89,14 @@ async def download_manifest(
         if not claimed:
             raise HTTPException(
                 400,
-                "Token sudah digunakan."
+                "Token has already been used."
             )
         
     elif required_auth == "api_key":
         if not data.api_key:
             raise HTTPException(
                 status_code=400,
-                detail="API Key wajib diisi."
+                detail="API key is required."
             )
 
     # Download dari provider
@@ -116,7 +116,7 @@ async def download_manifest(
 
         raise HTTPException(
             404,
-            "Manifest tidak tersedia."
+            "Manifest is not available."
         )
 
     if response.status_code != 200:
@@ -125,7 +125,7 @@ async def download_manifest(
 
         raise HTTPException(
             response.status_code,
-            "Gagal mengambil manifest."
+            "Failed to fetch manifest."
         )
 
     return StreamingResponse(
@@ -150,12 +150,12 @@ async def manifest_status(
     if response.status_code == 404:
         raise HTTPException(
             404,
-            "Game tidak ditemukan."
+            "Game not found."
         )
 
     raise HTTPException(
         response.status_code,
-        "Gagal mengambil status manifest."
+        "Failed to fetch manifest status."
     )
 
 @router.get("/search")
@@ -173,14 +173,11 @@ async def search(
 
     raise HTTPException(
         response.status_code,
-        "Pencarian gagal."
+        "Search failed."
     )
 
 @router.get("/steam/{app_id}", summary="Detail game dari Steam")
 async def get_steam_details(app_id: str):
-    """
-    Ambil detail game langsung dari Steam Store API.
-    """
     try:
         game_data = await get_steam_game_data(app_id)
     except httpx.HTTPStatusError as e:

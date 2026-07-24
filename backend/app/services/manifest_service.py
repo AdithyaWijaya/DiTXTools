@@ -160,7 +160,7 @@ async def _fetch_manifesthub1_bundle(app_id: int, api_key: str) -> httpx.Respons
         if not targets:
             return httpx.Response(
                 404,
-                content=b'{"detail":"Manifest tidak tersedia."}',
+                content=b'{"detail":"Manifest is not available."}',
                 headers={"Content-Type": "application/json"},
             )
 
@@ -206,13 +206,13 @@ async def fetch_manifest(
     provider = MANIFEST_PROVIDERS.get(source)
 
     if provider is None:
-        raise ValueError("Provider tidak ditemukan")
+        raise ValueError("Provider not found")
 
     if provider.get("mode") == "manifesthub1":
         if not api_key:
             return httpx.Response(
                 400,
-                content=b'{"detail":"API Key wajib diisi."}',
+                content=b'{"detail":"API key is required."}',
                 headers={"Content-Type": "application/json"},
             )
 

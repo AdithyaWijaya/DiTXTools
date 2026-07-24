@@ -8,7 +8,7 @@ from app.models import TokenUsage, Token
 from app.utils import generate_token
 from app.schemas import TokenResponse, DiscordRequest
 
-router = APIRouter(prefix="/bot")
+router = APIRouter(prefix="/bot",tags=["Bot"],)
 
 @router.post("/token", response_model=TokenResponse)
 async def create_discord_token(
@@ -26,7 +26,7 @@ async def create_discord_token(
     if limit == 0:
         raise HTTPException(
             status_code=403,
-            detail="Role tidak diizinkan."
+            detail="Role is not allowed."
         )
 
     # Jika bukan unlimited, cek kuota harian
@@ -46,7 +46,7 @@ async def create_discord_token(
         if used >= limit:
             raise HTTPException(
                 status_code=429,
-                detail=f"Kuota harian ({limit}) sudah habis."
+                detail=f"Daily quota ({limit}) has been exhausted."
             )
 
     # Generate token
