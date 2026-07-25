@@ -1,19 +1,23 @@
-import { useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import './index.css';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import ManifestPage from './pages/ManifestPage';
 import FixesPage from './pages/FixesPage';
-
-type Page = 'home' | 'manifest' | 'fixes';
+import { getPageFromPath, navigate } from './router';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<Page>('home');
-
-  const navigate = (page: Page) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const currentPage = useSyncExternalStore(
+    (onStoreChange) => {
+      window.addEventListener('popstate', onStoreChange);
+      window.addEventListener('router-navigate', onStoreChange);
+      return () => {
+        window.removeEventListener('popstate', onStoreChange);
+        window.removeEventListener('router-navigate', onStoreChange);
+      };
+    },
+    () => getPageFromPath(window.location.pathname),
+  );
 
   return (
     <>

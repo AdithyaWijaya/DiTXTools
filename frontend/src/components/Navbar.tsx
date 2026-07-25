@@ -1,6 +1,5 @@
 import { useState } from "react";
-
-type Page = "home" | "manifest" | "fixes";
+import { type Page, getPathFromPage } from "../router";
 
 interface NavbarProps {
   currentPage: Page;
@@ -15,6 +14,13 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
     { label: "Manifest Downloader", page: "manifest" },
     { label: "Fixes / Support", page: "fixes" },
   ];
+
+  const handleNav = (page: Page) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    onNavigate(page);
+    setMenuOpen(false);
+  };
+
   const [discordHover, setDiscordHover] = useState(false);
   return (
     <nav
@@ -41,8 +47,9 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
         }}
       >
         {/* Logo */}
-        <button
-          onClick={() => onNavigate("home")}
+        <a
+          href="/"
+          onClick={handleNav("home")}
           style={{
             background: "none",
             border: "none",
@@ -50,6 +57,7 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
             alignItems: "center",
             gap: 10,
             cursor: "pointer",
+            textDecoration: "none",
           }}
         >
           <img
@@ -74,7 +82,7 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
           >
             DiTXTools
           </span>
-        </button>
+        </a>
 
         {/* Desktop links */}
         <div
@@ -82,9 +90,10 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
           className="desktop-nav"
         >
           {navLinks.map(({ label, page }) => (
-            <button
+            <a
               key={page}
-              onClick={() => onNavigate(page)}
+              href={getPathFromPage(page)}
+              onClick={handleNav(page)}
               style={{
                 background: "none",
                 border: "none",
@@ -98,10 +107,11 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
                     ? "2px solid #A855F7"
                     : "2px solid transparent",
                 transition: "all 0.15s",
+                textDecoration: "none",
               }}
             >
               {label}
-            </button>
+            </a>
           ))}
           <a
             href="https://discord.gg/uewY5Jph2b"
@@ -213,12 +223,10 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
           }}
         >
           {navLinks.map(({ label, page }) => (
-            <button
+            <a
               key={page}
-              onClick={() => {
-                onNavigate(page);
-                setMenuOpen(false);
-              }}
+              href={getPathFromPage(page)}
+              onClick={handleNav(page)}
               style={{
                 background: "none",
                 border: "none",
@@ -229,10 +237,11 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
                 padding: "12px 0",
                 cursor: "pointer",
                 borderBottom: "1px solid rgba(42,45,62,0.4)",
+                textDecoration: "none",
               }}
             >
               {label}
-            </button>
+            </a>
           ))}
           <a
             href="https://discord.gg/uewY5Jph2b"

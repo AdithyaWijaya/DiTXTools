@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { API_URL } from "../config";
 import Footer from '../components/Footer';
 
@@ -131,28 +131,56 @@ async function extractErrorMessage(res: Response): Promise<string> {
   return text || `HTTP ${res.status}`;
 }
 
+const manifestCache: Partial<{
+  query: string;
+  searchMode: SearchMode;
+  source: ManifestSource;
+  licenseToken: string;
+  manifestHubApiKey: string;
+  tokenDraft: string;
+  manifestHubDraft: string;
+  dropdownOpen: boolean;
+  dropdownItems: { name: string; id: string }[];
+  dropdownMsg: string;
+  detail: DetailState | null;
+  dlStatus: string;
+  dlLoading: boolean;
+}> = {};
+
 export default function ManifestPage() {
-  const [query, setQuery] = useState('');
-  const [searchMode, setSearchMode] = useState<SearchMode>('title');
-  const [source, setSource] = useState<ManifestSource>('ryuu');
-  const [licenseToken, setLicenseToken] = useState('');
-  const [manifestHubApiKey, setManifestHubApiKey] = useState('');
+  const [query, setQuery] = useState(() => manifestCache.query ?? '');
+  const [searchMode, setSearchMode] = useState<SearchMode>(() => manifestCache.searchMode ?? 'title');
+  const [source, setSource] = useState<ManifestSource>(() => manifestCache.source ?? 'ryuu');
+  const [licenseToken, setLicenseToken] = useState(() => manifestCache.licenseToken ?? '');
+  const [manifestHubApiKey, setManifestHubApiKey] = useState(() => manifestCache.manifestHubApiKey ?? '');
   const [tokenModalOpen, setTokenModalOpen] = useState(false);
-  const [tokenDraft, setTokenDraft] = useState('');
+  const [tokenDraft, setTokenDraft] = useState(() => manifestCache.tokenDraft ?? '');
   const [tokenError, setTokenError] = useState('');
   const [tokenChecking, setTokenChecking] = useState(false);
   const [manifestHubModalOpen, setManifestHubModalOpen] = useState(false);
-  const [manifestHubDraft, setManifestHubDraft] = useState('');
+  const [manifestHubDraft, setManifestHubDraft] = useState(() => manifestCache.manifestHubDraft ?? '');
   const [manifestHubError, setManifestHubError] = useState('');
   const [manifestHubChecking, setManifestHubChecking] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [dropdownItems, setDropdownItems] = useState<{ name: string; id: string }[]>([]);
-  const [dropdownMsg, setDropdownMsg] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(() => manifestCache.dropdownOpen ?? false);
+  const [dropdownItems, setDropdownItems] = useState<{ name: string; id: string }[]>(() => manifestCache.dropdownItems ?? []);
+  const [dropdownMsg, setDropdownMsg] = useState(() => manifestCache.dropdownMsg ?? '');
   const [loading, setLoading] = useState(false);
-  const [detail, setDetail] = useState<DetailState | null>(null);
-  const [dlStatus, setDlStatus] = useState('');
-  const [dlLoading, setDlLoading] = useState(false);
+  const [detail, setDetail] = useState<DetailState | null>(() => manifestCache.detail ?? null);
+  const [dlStatus, setDlStatus] = useState(() => manifestCache.dlStatus ?? '');
+  const [dlLoading, setDlLoading] = useState(() => manifestCache.dlLoading ?? false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const stateRef = useRef(manifestCache);
+
+  useEffect(() => {
+    stateRef.current = { query, searchMode, source, licenseToken, manifestHubApiKey, tokenDraft, manifestHubDraft, dropdownOpen, dropdownItems, dropdownMsg, detail, dlStatus, dlLoading };
+  });
+
+  useEffect(() => {
+    return () => {
+      Object.assign(manifestCache, stateRef.current);
+    };
+  }, []);
 
   const openHubcapTokenModal = () => {
     setTokenDraft(licenseToken);
