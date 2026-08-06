@@ -778,6 +778,10 @@ function renderTokensPage() {
           <button type="button" class="status-filter" data-status="used">Used</button>
           <button type="button" class="status-filter" data-status="expired">Expired</button>
         </div>
+        <button class="btn btn-danger btn-sm btn-clear" id="clear-tokens-btn" title="Delete all used and expired tokens">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+          Clear Token
+        </button>
       </div>
 
       <div class="table-wrap">
@@ -817,6 +821,20 @@ function renderTokensPage() {
         </div>
         <div class="modal-actions">
           <button class="btn btn-ghost btn-sm" id="modal-close">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="confirm-overlay">
+      <div class="modal">
+        <h3>Clear token?</h3>
+        <p class="desc" id="confirm-desc">This will permanently delete all used and expired tokens. This action cannot be undone.</p>
+        <div class="modal-actions">
+          <button class="btn btn-ghost btn-sm" id="confirm-cancel">Cancel</button>
+          <button class="btn btn-danger btn-sm" id="confirm-delete">
+            <span class="spinner"></span>
+            <span class="btn-label">Clear token</span>
+          </button>
         </div>
       </div>
     </div>
@@ -860,6 +878,13 @@ function renderTokensPage() {
   document.getElementById("modal-copy").addEventListener("click", (e) => {
     copyText(document.getElementById("modal-token-value").textContent, e.currentTarget);
   });
+
+  document.getElementById("clear-tokens-btn").addEventListener("click", openClearConfirm);
+  document.getElementById("confirm-cancel").addEventListener("click", closeClearConfirm);
+  document.getElementById("confirm-overlay").addEventListener("click", (e) => {
+    if (e.target.id === "confirm-overlay") closeClearConfirm();
+  });
+  document.getElementById("confirm-delete").addEventListener("click", clearTokens);
 
   loadTokens();
 }
@@ -995,4 +1020,52 @@ function openModal(tokenValue) {
 
 function closeModal() {
   document.getElementById("modal-overlay").classList.remove("open");
+}
+
+async function openClearConfirm() {
+  const desc = document.getElementById("confirm-desc");
+  desc.textContent = "Checking used and expired tokens…";
+
+  try {
+    const [used, expired] = await Promise.all([
+      apiFetch("/admin/tokens?status=used&limit=1"),
+      apiFetch("/admin/tokens?status=expired&limit=1"),
+    ]);
+    const total = used.total + expired.total;
+
+    if (total === 0) {
+      toast("No used or expired tokens to clear.", "error");
+      return;
+    }
+
+    desc.textContent =
+      `${used.total} used and ${expired.total} expired token${total > 1 ? "s" : ""} will be permanently deleted. This action cannot be undone.`;
+  } catch (err) {
+    desc.textContent = "This will permanently delete all used and expired tokens. This action cannot be undone.";
+  }
+
+  document.getElementById("confirm-overlay").classList.add("open");
+}
+
+function closeClearConfirm() {
+  document.getElementById("confirm-overlay").classList.remove("open");
+}
+
+async function clearTokens() {
+  const deleteBtn = document.getElementById("confirm-delete");
+  deleteBtn.disabled = true;
+  deleteBtn.classList.add("loading");
+
+  try {
+    const data = await apiFetch("/admin/tokens/clear", { method: "DELETE" });
+    closeClearConfirm();
+    tokensState.skip = 0;
+    await loadTokens();
+    toast(`${data.deleted} token${data.deleted !== 1 ? "s" : ""} cleared.`, "success");
+  } catch (err) {
+    toast(err.message, "error");
+  } finally {
+    deleteBtn.disabled = false;
+    deleteBtn.classList.remove("loading");
+  }
 }

@@ -88,6 +88,28 @@ def delete_token(
     return {"message": "Token deleted successfully."}
 
 
+@router.delete("/tokens/clear")
+def clear_tokens(
+    db: Session = Depends(get_db),
+    _: None = Depends(verify_admin_key),
+):
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=1)
+
+    deleted = (
+        db.query(Token)
+        .filter(
+            or_(
+                Token.used_at.isnot(None),
+                Token.created_at < cutoff,
+            )
+        )
+        .delete(synchronize_session=False)
+    )
+    db.commit()
+
+    return {"deleted": deleted}
+
+
 def _token_status(token: Token) -> str:
     if token.used_at is not None:
         return "used"

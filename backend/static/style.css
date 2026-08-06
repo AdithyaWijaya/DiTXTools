@@ -205,6 +205,22 @@ p {
   border-color: var(--text-primary);
 }
 
+.btn-danger {
+  background: transparent;
+  color: var(--red);
+  border: 1px solid var(--red);
+}
+.btn-danger:hover {
+  background: var(--red-15);
+}
+.btn-danger:active {
+  background: rgba(239, 68, 68, 0.25);
+}
+.btn-danger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .btn-icon {
   width: 44px;
   height: 44px;
@@ -675,6 +691,11 @@ p {
   background: var(--purple-10);
   border-color: var(--purple);
   color: var(--purple);
+}
+
+.toolbar .btn-clear {
+  margin-left: auto;
+  min-height: 36px;
 }
 
 /* ---------- Table ---------- */
