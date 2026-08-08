@@ -27,7 +27,7 @@ export function formatUtcTimestamp(timestamp: string): string {
 type ManifestSource = 'hubcap' | 'manifesthub1' | 'sushi' | 'ryuu' | 'yaszz';
 type SearchMode = 'title' | 'appid';
 
-const HIDDEN_SOURCE_OPTIONS = new Set<ManifestSource>([]);
+const HIDDEN_SOURCE_OPTIONS = new Set<ManifestSource>(['sushi', 'yaszz', 'manifesthub1']);
 
 interface Game {
   game_name?: string;
