@@ -1,9 +1,9 @@
 # DiTXTools Backend — Dokumentasi API
 
 Backend ditulis dengan **FastAPI**. Semua endpoint di bawah ini bisa di-explore
-interaktif di Swagger UI: `http://localhost:8000/docs`.
+interaktif di Swagger UI: `https://api-ditxtools.up.railway.app/docs`.
 
-Base URL local: `http://localhost:8000`
+Base URL local: `https://api-ditxtools.up.railway.app`
 
 ---
 
