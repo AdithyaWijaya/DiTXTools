@@ -1,1850 +1,539 @@
----
-title: FastAPI v0.1.0
-language_tabs:
-  - shell: Shell
-  - http: HTTP
-  - javascript: JavaScript
-  - ruby: Ruby
-  - python: Python
-  - php: PHP
-  - java: Java
-  - go: Go
-toc_footers: []
-includes: []
-search: true
-highlight_theme: darkula
-headingLevel: 2
+# DiTXTools Backend — Dokumentasi API
+
+Backend ditulis dengan **FastAPI**. Semua endpoint di bawah ini bisa di-explore
+interaktif di Swagger UI: `http://localhost:8000/docs`.
+
+Base URL local: `http://localhost:8000`
 
 ---
 
-<!-- Generator: Widdershins v4.0.1 -->
+## Daftar Isi
 
-<h1 id="fastapi">FastAPI v0.1.0</h1>
+1. [Root](#root)
+2. [API Manifest (`/api`)](#api-manifest-api)
+3. [Admin (`/admin`)](#admin-admin)
+4. [Bot (`/bot`)](#bot-bot)
+5. [Autentikasi](#autentikasi)
+6. [Rate Limit](#rate-limit)
 
-> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+---
 
-<h1 id="fastapi-default">Default</h1>
+## Root
 
-## root__get
+### `GET /`
 
-<a id="opIdroot__get"></a>
+Mengembalikan halaman HTML API reference (`templates/api.html`).
 
-> Code samples
+| | |
+|---|---|
+| Autentikasi | Tidak |
+| Respons | `text/html` |
 
-```shell
-# You can also use wget
-curl -X GET / \
-  -H 'Accept: application/json'
+---
 
-```
+### `GET /admin`
 
-```http
-GET / HTTP/1.1
+Mengembalikan halaman web admin (`templates/admin.html`).
 
-Accept: application/json
+| | |
+|---|---|
+| Autentikasi | Tidak |
+| Respons | `text/html` |
 
-```
+---
 
-```javascript
+### `GET /favicon.ico`
 
-const headers = {
-  'Accept':'application/json'
-};
+Mengembalikan favicon (`static/favicon.ico`).
 
-fetch('/',
-{
-  method: 'GET',
+| | |
+|---|---|
+| Autentikasi | Tidak |
+| Respons | `image/x-icon` |
 
-  headers: headers
-})
-.then(function(res) {
-    return res.json();
-}).then(function(body) {
-    console.log(body);
-});
+---
 
-```
+### `GET /health`
 
-```ruby
-require 'rest-client'
-require 'json'
+Proxy health check ke upstream `https://hubcapmanifest.com/api/v1/health`.
 
-headers = {
-  'Accept' => 'application/json'
-}
+| | |
+|---|---|
+| Autentikasi | Tidak |
+| Respons | JSON dari upstream |
 
-result = RestClient.get '/',
-  params: {
-  }, headers: headers
+**Error:**
+- `502` — gagal terhubung ke upstream.
 
-p JSON.parse(result)
+---
 
-```
+### `GET /static/*`
 
-```python
-import requests
-headers = {
-  'Accept': 'application/json'
-}
+Static files yang dimount dari direktori `backend/static`.
 
-r = requests.get('/', headers = headers)
+---
 
-print(r.json())
+## API Manifest (`/api`)
 
-```
+Prefix: `/api`
 
-```php
-<?php
+---
 
-require 'vendor/autoload.php';
+### `POST /api/token/validate`
 
-$headers = array(
-    'Accept' => 'application/json',
-);
+Cek validitas token **tanpa menandainya sebagai terpakai**. Valid = token
+ditemukan, belum digunakan, dan belum kedaluwarsa (1 jam).
 
-$client = new \GuzzleHttp\Client();
+| | |
+|---|---|
+| Autentikasi | Tidak |
+| Rate limit | 10/menit per IP |
 
-// Define array of request body.
-$request_body = array();
-
-try {
-    $response = $client->request('GET','/', array(
-        'headers' => $headers,
-        'json' => $request_body,
-       )
-    );
-    print_r($response->getBody()->getContents());
- }
- catch (\GuzzleHttp\Exception\BadResponseException $e) {
-    // handle exception or api errors.
-    print_r($e->getMessage());
- }
-
- // ...
-
-```
-
-```java
-URL obj = new URL("/");
-HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-con.setRequestMethod("GET");
-int responseCode = con.getResponseCode();
-BufferedReader in = new BufferedReader(
-    new InputStreamReader(con.getInputStream()));
-String inputLine;
-StringBuffer response = new StringBuffer();
-while ((inputLine = in.readLine()) != null) {
-    response.append(inputLine);
-}
-in.close();
-System.out.println(response.toString());
-
-```
-
-```go
-package main
-
-import (
-       "bytes"
-       "net/http"
-)
-
-func main() {
-
-    headers := map[string][]string{
-        "Accept": []string{"application/json"},
-    }
-
-    data := bytes.NewBuffer([]byte{jsonReq})
-    req, err := http.NewRequest("GET", "/", data)
-    req.Header = headers
-
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    // ...
-}
-
-```
-
-`GET /`
-
-*Root*
-
-> Example responses
-
-> 200 Response
+**Request body (JSON):**
 
 ```json
-null
+{ "token": "DX-8F3K2Q" }
 ```
 
-<h3 id="root__get-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Successful Response|Inline|
-
-<h3 id="root__get-responseschema">Response Schema</h3>
-
-<aside class="success">
-This operation does not require authentication
-</aside>
-
-## favicon_favicon_ico_get
-
-<a id="opIdfavicon_favicon_ico_get"></a>
-
-> Code samples
-
-```shell
-# You can also use wget
-curl -X GET /favicon.ico \
-  -H 'Accept: application/json'
-
-```
-
-```http
-GET /favicon.ico HTTP/1.1
-
-Accept: application/json
-
-```
-
-```javascript
-
-const headers = {
-  'Accept':'application/json'
-};
-
-fetch('/favicon.ico',
-{
-  method: 'GET',
-
-  headers: headers
-})
-.then(function(res) {
-    return res.json();
-}).then(function(body) {
-    console.log(body);
-});
-
-```
-
-```ruby
-require 'rest-client'
-require 'json'
-
-headers = {
-  'Accept' => 'application/json'
-}
-
-result = RestClient.get '/favicon.ico',
-  params: {
-  }, headers: headers
-
-p JSON.parse(result)
-
-```
-
-```python
-import requests
-headers = {
-  'Accept': 'application/json'
-}
-
-r = requests.get('/favicon.ico', headers = headers)
-
-print(r.json())
-
-```
-
-```php
-<?php
-
-require 'vendor/autoload.php';
-
-$headers = array(
-    'Accept' => 'application/json',
-);
-
-$client = new \GuzzleHttp\Client();
-
-// Define array of request body.
-$request_body = array();
-
-try {
-    $response = $client->request('GET','/favicon.ico', array(
-        'headers' => $headers,
-        'json' => $request_body,
-       )
-    );
-    print_r($response->getBody()->getContents());
- }
- catch (\GuzzleHttp\Exception\BadResponseException $e) {
-    // handle exception or api errors.
-    print_r($e->getMessage());
- }
-
- // ...
-
-```
-
-```java
-URL obj = new URL("/favicon.ico");
-HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-con.setRequestMethod("GET");
-int responseCode = con.getResponseCode();
-BufferedReader in = new BufferedReader(
-    new InputStreamReader(con.getInputStream()));
-String inputLine;
-StringBuffer response = new StringBuffer();
-while ((inputLine = in.readLine()) != null) {
-    response.append(inputLine);
-}
-in.close();
-System.out.println(response.toString());
-
-```
-
-```go
-package main
-
-import (
-       "bytes"
-       "net/http"
-)
-
-func main() {
-
-    headers := map[string][]string{
-        "Accept": []string{"application/json"},
-    }
-
-    data := bytes.NewBuffer([]byte{jsonReq})
-    req, err := http.NewRequest("GET", "/favicon.ico", data)
-    req.Header = headers
-
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    // ...
-}
-
-```
-
-`GET /favicon.ico`
-
-*Favicon*
-
-> Example responses
-
-> 200 Response
+**Respons `200`:**
 
 ```json
-null
+{ "valid": true, "message": "Token is valid." }
 ```
 
-<h3 id="favicon_favicon_ico_get-responses">Responses</h3>
+**Error:**
+- `400` — token tidak valid / sudah dipakai / kedaluwarsa.
+- `429` — rate limit.
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Successful Response|Inline|
+---
 
-<h3 id="favicon_favicon_ico_get-responseschema">Response Schema</h3>
+### `POST /api/manifest`
 
-<aside class="success">
-This operation does not require authentication
-</aside>
+Download manifest game sebagai file ZIP.
 
-## health_health_get
+| | |
+|---|---|
+| Autentikasi | Tergantung provider (lihat tabel di bawah) |
+| Rate limit | 15/menit per IP |
 
-<a id="opIdhealth_health_get"></a>
-
-> Code samples
-
-```shell
-# You can also use wget
-curl -X GET /health \
-  -H 'Accept: application/json'
-
-```
-
-```http
-GET /health HTTP/1.1
-
-Accept: application/json
-
-```
-
-```javascript
-
-const headers = {
-  'Accept':'application/json'
-};
-
-fetch('/health',
-{
-  method: 'GET',
-
-  headers: headers
-})
-.then(function(res) {
-    return res.json();
-}).then(function(body) {
-    console.log(body);
-});
-
-```
-
-```ruby
-require 'rest-client'
-require 'json'
-
-headers = {
-  'Accept' => 'application/json'
-}
-
-result = RestClient.get '/health',
-  params: {
-  }, headers: headers
-
-p JSON.parse(result)
-
-```
-
-```python
-import requests
-headers = {
-  'Accept': 'application/json'
-}
-
-r = requests.get('/health', headers = headers)
-
-print(r.json())
-
-```
-
-```php
-<?php
-
-require 'vendor/autoload.php';
-
-$headers = array(
-    'Accept' => 'application/json',
-);
-
-$client = new \GuzzleHttp\Client();
-
-// Define array of request body.
-$request_body = array();
-
-try {
-    $response = $client->request('GET','/health', array(
-        'headers' => $headers,
-        'json' => $request_body,
-       )
-    );
-    print_r($response->getBody()->getContents());
- }
- catch (\GuzzleHttp\Exception\BadResponseException $e) {
-    // handle exception or api errors.
-    print_r($e->getMessage());
- }
-
- // ...
-
-```
-
-```java
-URL obj = new URL("/health");
-HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-con.setRequestMethod("GET");
-int responseCode = con.getResponseCode();
-BufferedReader in = new BufferedReader(
-    new InputStreamReader(con.getInputStream()));
-String inputLine;
-StringBuffer response = new StringBuffer();
-while ((inputLine = in.readLine()) != null) {
-    response.append(inputLine);
-}
-in.close();
-System.out.println(response.toString());
-
-```
-
-```go
-package main
-
-import (
-       "bytes"
-       "net/http"
-)
-
-func main() {
-
-    headers := map[string][]string{
-        "Accept": []string{"application/json"},
-    }
-
-    data := bytes.NewBuffer([]byte{jsonReq})
-    req, err := http.NewRequest("GET", "/health", data)
-    req.Header = headers
-
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    // ...
-}
-
-```
-
-`GET /health`
-
-*Health*
-
-> Example responses
-
-> 200 Response
-
-```json
-null
-```
-
-<h3 id="health_health_get-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Successful Response|Inline|
-
-<h3 id="health_health_get-responseschema">Response Schema</h3>
-
-<aside class="success">
-This operation does not require authentication
-</aside>
-
-<h1 id="fastapi-admin">Admin</h1>
-
-## create_token_admin_token_post
-
-<a id="opIdcreate_token_admin_token_post"></a>
-
-> Code samples
-
-```shell
-# You can also use wget
-curl -X POST /admin/token \
-  -H 'Accept: application/json' \
-  -H 'x-api-key: string'
-
-```
-
-```http
-POST /admin/token HTTP/1.1
-
-Accept: application/json
-x-api-key: string
-
-```
-
-```javascript
-
-const headers = {
-  'Accept':'application/json',
-  'x-api-key':'string'
-};
-
-fetch('/admin/token',
-{
-  method: 'POST',
-
-  headers: headers
-})
-.then(function(res) {
-    return res.json();
-}).then(function(body) {
-    console.log(body);
-});
-
-```
-
-```ruby
-require 'rest-client'
-require 'json'
-
-headers = {
-  'Accept' => 'application/json',
-  'x-api-key' => 'string'
-}
-
-result = RestClient.post '/admin/token',
-  params: {
-  }, headers: headers
-
-p JSON.parse(result)
-
-```
-
-```python
-import requests
-headers = {
-  'Accept': 'application/json',
-  'x-api-key': 'string'
-}
-
-r = requests.post('/admin/token', headers = headers)
-
-print(r.json())
-
-```
-
-```php
-<?php
-
-require 'vendor/autoload.php';
-
-$headers = array(
-    'Accept' => 'application/json',
-    'x-api-key' => 'string',
-);
-
-$client = new \GuzzleHttp\Client();
-
-// Define array of request body.
-$request_body = array();
-
-try {
-    $response = $client->request('POST','/admin/token', array(
-        'headers' => $headers,
-        'json' => $request_body,
-       )
-    );
-    print_r($response->getBody()->getContents());
- }
- catch (\GuzzleHttp\Exception\BadResponseException $e) {
-    // handle exception or api errors.
-    print_r($e->getMessage());
- }
-
- // ...
-
-```
-
-```java
-URL obj = new URL("/admin/token");
-HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-con.setRequestMethod("POST");
-int responseCode = con.getResponseCode();
-BufferedReader in = new BufferedReader(
-    new InputStreamReader(con.getInputStream()));
-String inputLine;
-StringBuffer response = new StringBuffer();
-while ((inputLine = in.readLine()) != null) {
-    response.append(inputLine);
-}
-in.close();
-System.out.println(response.toString());
-
-```
-
-```go
-package main
-
-import (
-       "bytes"
-       "net/http"
-)
-
-func main() {
-
-    headers := map[string][]string{
-        "Accept": []string{"application/json"},
-        "x-api-key": []string{"string"},
-    }
-
-    data := bytes.NewBuffer([]byte{jsonReq})
-    req, err := http.NewRequest("POST", "/admin/token", data)
-    req.Header = headers
-
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    // ...
-}
-
-```
-
-`POST /admin/token`
-
-*Create Token*
-
-<h3 id="create_token_admin_token_post-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|x-api-key|header|string|true|none|
-
-> Example responses
-
-> 200 Response
+**Request body (JSON):**
 
 ```json
 {
-  "token": "string",
-  "created_at": "2019-08-24T14:15:22Z",
-  "used_at": "2019-08-24T14:15:22Z",
-  "used_app_id": "string",
-  "used_by_ip": "string"
-}
-```
-
-<h3 id="create_token_admin_token_post-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Successful Response|[TokenResponse](#schematokenresponse)|
-|422|[Unprocessable Entity](https://tools.ietf.org/html/rfc2518#section-10.3)|Validation Error|[HTTPValidationError](#schemahttpvalidationerror)|
-
-<aside class="success">
-This operation does not require authentication
-</aside>
-
-<h1 id="fastapi-api">API</h1>
-
-## validate_hubcap_token_api_token_validate_post
-
-<a id="opIdvalidate_hubcap_token_api_token_validate_post"></a>
-
-> Code samples
-
-```shell
-# You can also use wget
-curl -X POST /api/token/validate \
-  -H 'Content-Type: application/json' \
-  -H 'Accept: application/json'
-
-```
-
-```http
-POST /api/token/validate HTTP/1.1
-
-Content-Type: application/json
-Accept: application/json
-
-```
-
-```javascript
-const inputBody = '{
-  "token": "string"
-}';
-const headers = {
-  'Content-Type':'application/json',
-  'Accept':'application/json'
-};
-
-fetch('/api/token/validate',
-{
-  method: 'POST',
-  body: inputBody,
-  headers: headers
-})
-.then(function(res) {
-    return res.json();
-}).then(function(body) {
-    console.log(body);
-});
-
-```
-
-```ruby
-require 'rest-client'
-require 'json'
-
-headers = {
-  'Content-Type' => 'application/json',
-  'Accept' => 'application/json'
-}
-
-result = RestClient.post '/api/token/validate',
-  params: {
-  }, headers: headers
-
-p JSON.parse(result)
-
-```
-
-```python
-import requests
-headers = {
-  'Content-Type': 'application/json',
-  'Accept': 'application/json'
-}
-
-r = requests.post('/api/token/validate', headers = headers)
-
-print(r.json())
-
-```
-
-```php
-<?php
-
-require 'vendor/autoload.php';
-
-$headers = array(
-    'Content-Type' => 'application/json',
-    'Accept' => 'application/json',
-);
-
-$client = new \GuzzleHttp\Client();
-
-// Define array of request body.
-$request_body = array();
-
-try {
-    $response = $client->request('POST','/api/token/validate', array(
-        'headers' => $headers,
-        'json' => $request_body,
-       )
-    );
-    print_r($response->getBody()->getContents());
- }
- catch (\GuzzleHttp\Exception\BadResponseException $e) {
-    // handle exception or api errors.
-    print_r($e->getMessage());
- }
-
- // ...
-
-```
-
-```java
-URL obj = new URL("/api/token/validate");
-HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-con.setRequestMethod("POST");
-int responseCode = con.getResponseCode();
-BufferedReader in = new BufferedReader(
-    new InputStreamReader(con.getInputStream()));
-String inputLine;
-StringBuffer response = new StringBuffer();
-while ((inputLine = in.readLine()) != null) {
-    response.append(inputLine);
-}
-in.close();
-System.out.println(response.toString());
-
-```
-
-```go
-package main
-
-import (
-       "bytes"
-       "net/http"
-)
-
-func main() {
-
-    headers := map[string][]string{
-        "Content-Type": []string{"application/json"},
-        "Accept": []string{"application/json"},
-    }
-
-    data := bytes.NewBuffer([]byte{jsonReq})
-    req, err := http.NewRequest("POST", "/api/token/validate", data)
-    req.Header = headers
-
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    // ...
-}
-
-```
-
-`POST /api/token/validate`
-
-*Validate Hubcap Token*
-
-Cek validitas token (ditemukan, belum digunakan, belum kedaluwarsa)
-TANPA menandainya sebagai terpakai. Token baru benar-benar ditandai
-'used' (diklaim secara atomic) saat dipakai untuk mendownload manifest
-di endpoint POST /manifest (lihat claim_token di token_service.py).
-
-Token dikirim lewat JSON body (bukan query string) supaya tidak ikut
-tercatat di access log server/proxy/Referer header. Endpoint ini juga
-dibatasi rate limit-nya supaya tidak jadi alat gratis untuk brute-force
-menebak token yang valid.
-
-> Body parameter
-
-```json
-{
-  "token": "string"
-}
-```
-
-<h3 id="validate_hubcap_token_api_token_validate_post-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|body|body|[TokenValidateRequest](#schematokenvalidaterequest)|true|none|
-
-> Example responses
-
-> 200 Response
-
-```json
-null
-```
-
-<h3 id="validate_hubcap_token_api_token_validate_post-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Successful Response|Inline|
-|422|[Unprocessable Entity](https://tools.ietf.org/html/rfc2518#section-10.3)|Validation Error|[HTTPValidationError](#schemahttpvalidationerror)|
-
-<h3 id="validate_hubcap_token_api_token_validate_post-responseschema">Response Schema</h3>
-
-<aside class="success">
-This operation does not require authentication
-</aside>
-
-## download_manifest_api_manifest_post
-
-<a id="opIddownload_manifest_api_manifest_post"></a>
-
-> Code samples
-
-```shell
-# You can also use wget
-curl -X POST /api/manifest \
-  -H 'Content-Type: application/json' \
-  -H 'Accept: application/json'
-
-```
-
-```http
-POST /api/manifest HTTP/1.1
-
-Content-Type: application/json
-Accept: application/json
-
-```
-
-```javascript
-const inputBody = '{
-  "app_id": 0,
+  "app_id": 730,
   "source": "hubcap",
-  "token": "string"
-}';
-const headers = {
-  'Content-Type':'application/json',
-  'Accept':'application/json'
-};
-
-fetch('/api/manifest',
-{
-  method: 'POST',
-  body: inputBody,
-  headers: headers
-})
-.then(function(res) {
-    return res.json();
-}).then(function(body) {
-    console.log(body);
-});
-
-```
-
-```ruby
-require 'rest-client'
-require 'json'
-
-headers = {
-  'Content-Type' => 'application/json',
-  'Accept' => 'application/json'
+  "token": "DX-8F3K2Q",
+  "api_key": null
 }
-
-result = RestClient.post '/api/manifest',
-  params: {
-  }, headers: headers
-
-p JSON.parse(result)
-
 ```
 
-```python
-import requests
-headers = {
-  'Content-Type': 'application/json',
-  'Accept': 'application/json'
-}
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| `app_id` | `int` | Steam App ID. Wajib. |
+| `source` | `string` | Provider. Opsional, default `hubcap`. Opsi: `hubcap`, `manifesthub1`, `sushi`, `ryuu`, `yaszz`. |
+| `token` | `string` | Wajib jika `source=hubcap`. |
+| `api_key` | `string` | Wajib jika `source=manifesthub1`. |
 
-r = requests.post('/api/manifest', headers = headers)
+**Providers:**
 
-print(r.json())
+| Source | Auth yang dibutuhkan | Endpoint upstream |
+|--------|----------------------|-------------------|
+| `hubcap` | Token (`DX-XXXXX`) | `hubcapmanifest.com/api/v1/manifest/{app_id}` |
+| `manifesthub1` | API key | Finder API + bundle download |
+| `sushi` | Tidak ada | GitHub raw zip |
+| `ryuu` | Tidak ada | Direct HTTP |
+| `yaszz` | Tidak ada | GitHub archive download |
 
-```
+**Flow untuk `hubcap`:**
+1. Token divalidasi (`validate_token`).
+2. Token diklaim secara **atomic** (`claim_token`) — token yang sama tidak
+   bisa dipakai dua request bersamaan.
+3. Jika download gagal (404 / upstream error), klaim **dilepas kembali**
+   (`release_token`) sehingga token bisa dipakai lagi.
 
-```php
-<?php
+**Respons `200`:**
+- `application/zip` dengan header `Content-Disposition: attachment; filename="{app_id}.zip"`.
 
-require 'vendor/autoload.php';
+**Error:**
+- `400` — provider tidak valid, token/api_key tidak diberikan, atau token sudah dipakai.
+- `404` — manifest tidak tersedia.
+- `4xx/5xx` (upstream) — gagal mengambil manifest.
+- `429` — rate limit.
 
-$headers = array(
-    'Content-Type' => 'application/json',
-    'Accept' => 'application/json',
-);
+---
 
-$client = new \GuzzleHttp\Client();
+### `GET /api/status/{app_id}`
 
-// Define array of request body.
-$request_body = array();
+Cek status ketersediaan manifest sebuah game.
 
-try {
-    $response = $client->request('POST','/api/manifest', array(
-        'headers' => $headers,
-        'json' => $request_body,
-       )
-    );
-    print_r($response->getBody()->getContents());
- }
- catch (\GuzzleHttp\Exception\BadResponseException $e) {
-    // handle exception or api errors.
-    print_r($e->getMessage());
- }
+| | |
+|---|---|
+| Autentikasi | Tidak |
+| Rate limit | Tidak |
 
- // ...
+**Path parameter:**
 
-```
+| Parameter | Tipe | Keterangan |
+|-----------|------|------------|
+| `app_id` | `int` | Steam App ID. Wajib. |
 
-```java
-URL obj = new URL("/api/manifest");
-HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-con.setRequestMethod("POST");
-int responseCode = con.getResponseCode();
-BufferedReader in = new BufferedReader(
-    new InputStreamReader(con.getInputStream()));
-String inputLine;
-StringBuffer response = new StringBuffer();
-while ((inputLine = in.readLine()) != null) {
-    response.append(inputLine);
-}
-in.close();
-System.out.println(response.toString());
+**Respons `200`:** JSON dari upstream (status ketersediaan per provider).
 
-```
+**Error:**
+- `404` — game tidak ditemukan.
+- `4xx/5xx` (upstream) — gagal mengambil status.
 
-```go
-package main
+---
 
-import (
-       "bytes"
-       "net/http"
-)
+### `GET /api/search`
 
-func main() {
+Cari game berdasarkan nama.
 
-    headers := map[string][]string{
-        "Content-Type": []string{"application/json"},
-        "Accept": []string{"application/json"},
-    }
+| | |
+|---|---|
+| Autentikasi | Tidak |
+| Rate limit | Tidak |
 
-    data := bytes.NewBuffer([]byte{jsonReq})
-    req, err := http.NewRequest("POST", "/api/manifest", data)
-    req.Header = headers
+**Query parameters:**
 
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    // ...
-}
+| Parameter | Tipe | Default | Keterangan |
+|-----------|------|---------|------------|
+| `q` | `string` | — | Kata kunci pencarian. Wajib, min 3 karakter. |
+| `limit` | `int` | `20` | Jumlah hasil maksimal. Range `1–100`. |
+| `appid` | `bool` | `false` | Jika `true`, kembalikan App ID Steam juga. |
 
-```
+**Respons `200`:** JSON hasil pencarian dari upstream.
 
-`POST /api/manifest`
+**Error:**
+- `422` — `q` kurang dari 3 karakter / `limit` di luar range.
+- `4xx/5xx` (upstream) — pencarian gagal.
 
-*Download Manifest*
+---
 
-> Body parameter
+### `GET /api/steam/{app_id}`
+
+Detail game langsung dari Steam Store (normalized).
+
+| | |
+|---|---|
+| Autentikasi | Tidak |
+| Rate limit | Tidak |
+
+**Path parameter:**
+
+| Parameter | Tipe | Keterangan |
+|-----------|------|------------|
+| `app_id` | `string` | Steam App ID. Wajib. |
+
+**Respons `200`:**
 
 ```json
 {
-  "app_id": 0,
-  "source": "hubcap",
-  "token": "string"
+  "name": "Counter-Strike 2",
+  "headerImage": "https://cdn.cloudflare.steamstatic.com/.../header.jpg",
+  "releaseDate": "21 Aug, 2012",
+  "genres": ["Action", "Free to Play"],
+  "description": "For over two decades, Counter-Strike...",
+  "developers": ["Valve"],
+  "publishers": ["Valve"]
 }
 ```
 
-<h3 id="download_manifest_api_manifest_post-parameters">Parameters</h3>
+**Error:**
+- `404` — game tidak ditemukan di Steam.
+- `502` — gagal terhubung ke Steam.
+- `4xx` (upstream) — error dari Steam API.
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|body|body|[ManifestDownloadRequest](#schemamanifestdownloadrequest)|true|none|
+---
 
-> Example responses
+## Admin (`/admin`)
 
-> 200 Response
+Prefix: `/admin`
+
+Hampir semua endpoint admin dilindungi oleh header **`x-api-key`**
+(dibandingkan dengan constant-time compare via `secrets.compare_digest`).
+
+---
+
+### `POST /admin/login`
+
+Login ke web admin. Berhasil → mengembalikan `ADMIN_API_KEY` yang dipakai
+sebagai session token ("Bearer" manual lewat header `x-api-key`).
+
+| | |
+|---|---|
+| Autentikasi | Username/password (body) |
+| Rate limit | 5/menit per IP |
+
+**Request body (JSON):**
 
 ```json
-null
+{ "username": "admin", "password": "secret" }
 ```
 
-<h3 id="download_manifest_api_manifest_post-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Successful Response|Inline|
-|422|[Unprocessable Entity](https://tools.ietf.org/html/rfc2518#section-10.3)|Validation Error|[HTTPValidationError](#schemahttpvalidationerror)|
-
-<h3 id="download_manifest_api_manifest_post-responseschema">Response Schema</h3>
-
-<aside class="success">
-This operation does not require authentication
-</aside>
-
-## manifest_status_api_status__app_id__get
-
-<a id="opIdmanifest_status_api_status__app_id__get"></a>
-
-> Code samples
-
-```shell
-# You can also use wget
-curl -X GET /api/status/{app_id} \
-  -H 'Accept: application/json'
-
-```
-
-```http
-GET /api/status/{app_id} HTTP/1.1
-
-Accept: application/json
-
-```
-
-```javascript
-
-const headers = {
-  'Accept':'application/json'
-};
-
-fetch('/api/status/{app_id}',
-{
-  method: 'GET',
-
-  headers: headers
-})
-.then(function(res) {
-    return res.json();
-}).then(function(body) {
-    console.log(body);
-});
-
-```
-
-```ruby
-require 'rest-client'
-require 'json'
-
-headers = {
-  'Accept' => 'application/json'
-}
-
-result = RestClient.get '/api/status/{app_id}',
-  params: {
-  }, headers: headers
-
-p JSON.parse(result)
-
-```
-
-```python
-import requests
-headers = {
-  'Accept': 'application/json'
-}
-
-r = requests.get('/api/status/{app_id}', headers = headers)
-
-print(r.json())
-
-```
-
-```php
-<?php
-
-require 'vendor/autoload.php';
-
-$headers = array(
-    'Accept' => 'application/json',
-);
-
-$client = new \GuzzleHttp\Client();
-
-// Define array of request body.
-$request_body = array();
-
-try {
-    $response = $client->request('GET','/api/status/{app_id}', array(
-        'headers' => $headers,
-        'json' => $request_body,
-       )
-    );
-    print_r($response->getBody()->getContents());
- }
- catch (\GuzzleHttp\Exception\BadResponseException $e) {
-    // handle exception or api errors.
-    print_r($e->getMessage());
- }
-
- // ...
-
-```
-
-```java
-URL obj = new URL("/api/status/{app_id}");
-HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-con.setRequestMethod("GET");
-int responseCode = con.getResponseCode();
-BufferedReader in = new BufferedReader(
-    new InputStreamReader(con.getInputStream()));
-String inputLine;
-StringBuffer response = new StringBuffer();
-while ((inputLine = in.readLine()) != null) {
-    response.append(inputLine);
-}
-in.close();
-System.out.println(response.toString());
-
-```
-
-```go
-package main
-
-import (
-       "bytes"
-       "net/http"
-)
-
-func main() {
-
-    headers := map[string][]string{
-        "Accept": []string{"application/json"},
-    }
-
-    data := bytes.NewBuffer([]byte{jsonReq})
-    req, err := http.NewRequest("GET", "/api/status/{app_id}", data)
-    req.Header = headers
-
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    // ...
-}
-
-```
-
-`GET /api/status/{app_id}`
-
-*Manifest Status*
-
-<h3 id="manifest_status_api_status__app_id__get-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|app_id|path|integer|true|none|
-
-> Example responses
-
-> 200 Response
+**Respons `200`:**
 
 ```json
-null
+{ "api_key": "<ADMIN_API_KEY>", "username": "admin" }
 ```
 
-<h3 id="manifest_status_api_status__app_id__get-responses">Responses</h3>
+**Error:**
+- `401` — username/password salah.
+- `429` — rate limit.
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Successful Response|Inline|
-|422|[Unprocessable Entity](https://tools.ietf.org/html/rfc2518#section-10.3)|Validation Error|[HTTPValidationError](#schemahttpvalidationerror)|
+---
 
-<h3 id="manifest_status_api_status__app_id__get-responseschema">Response Schema</h3>
+### `POST /admin/token`
 
-<aside class="success">
-This operation does not require authentication
-</aside>
+Membuat token baru dengan format `DX-XXXXX` (huruf kapital alfanumerik).
 
-## search_api_search_get
+| | |
+|---|---|
+| Autentikasi | Header `x-api-key` |
+| Rate limit | Tidak |
 
-<a id="opIdsearch_api_search_get"></a>
-
-> Code samples
-
-```shell
-# You can also use wget
-curl -X GET /api/search?q=string \
-  -H 'Accept: application/json'
-
-```
-
-```http
-GET /api/search?q=string HTTP/1.1
-
-Accept: application/json
-
-```
-
-```javascript
-
-const headers = {
-  'Accept':'application/json'
-};
-
-fetch('/api/search?q=string',
-{
-  method: 'GET',
-
-  headers: headers
-})
-.then(function(res) {
-    return res.json();
-}).then(function(body) {
-    console.log(body);
-});
-
-```
-
-```ruby
-require 'rest-client'
-require 'json'
-
-headers = {
-  'Accept' => 'application/json'
-}
-
-result = RestClient.get '/api/search',
-  params: {
-  'q' => 'string'
-}, headers: headers
-
-p JSON.parse(result)
-
-```
-
-```python
-import requests
-headers = {
-  'Accept': 'application/json'
-}
-
-r = requests.get('/api/search', params={
-  'q': 'string'
-}, headers = headers)
-
-print(r.json())
-
-```
-
-```php
-<?php
-
-require 'vendor/autoload.php';
-
-$headers = array(
-    'Accept' => 'application/json',
-);
-
-$client = new \GuzzleHttp\Client();
-
-// Define array of request body.
-$request_body = array();
-
-try {
-    $response = $client->request('GET','/api/search', array(
-        'headers' => $headers,
-        'json' => $request_body,
-       )
-    );
-    print_r($response->getBody()->getContents());
- }
- catch (\GuzzleHttp\Exception\BadResponseException $e) {
-    // handle exception or api errors.
-    print_r($e->getMessage());
- }
-
- // ...
-
-```
-
-```java
-URL obj = new URL("/api/search?q=string");
-HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-con.setRequestMethod("GET");
-int responseCode = con.getResponseCode();
-BufferedReader in = new BufferedReader(
-    new InputStreamReader(con.getInputStream()));
-String inputLine;
-StringBuffer response = new StringBuffer();
-while ((inputLine = in.readLine()) != null) {
-    response.append(inputLine);
-}
-in.close();
-System.out.println(response.toString());
-
-```
-
-```go
-package main
-
-import (
-       "bytes"
-       "net/http"
-)
-
-func main() {
-
-    headers := map[string][]string{
-        "Accept": []string{"application/json"},
-    }
-
-    data := bytes.NewBuffer([]byte{jsonReq})
-    req, err := http.NewRequest("GET", "/api/search", data)
-    req.Header = headers
-
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    // ...
-}
-
-```
-
-`GET /api/search`
-
-*Search*
-
-<h3 id="search_api_search_get-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|q|query|string|true|none|
-|limit|query|integer|false|none|
-|appid|query|boolean|false|none|
-
-> Example responses
-
-> 200 Response
-
-```json
-null
-```
-
-<h3 id="search_api_search_get-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Successful Response|Inline|
-|422|[Unprocessable Entity](https://tools.ietf.org/html/rfc2518#section-10.3)|Validation Error|[HTTPValidationError](#schemahttpvalidationerror)|
-
-<h3 id="search_api_search_get-responseschema">Response Schema</h3>
-
-<aside class="success">
-This operation does not require authentication
-</aside>
-
-## get_steam_details_api_steam__app_id__get
-
-<a id="opIdget_steam_details_api_steam__app_id__get"></a>
-
-> Code samples
-
-```shell
-# You can also use wget
-curl -X GET /api/steam/{app_id} \
-  -H 'Accept: application/json'
-
-```
-
-```http
-GET /api/steam/{app_id} HTTP/1.1
-
-Accept: application/json
-
-```
-
-```javascript
-
-const headers = {
-  'Accept':'application/json'
-};
-
-fetch('/api/steam/{app_id}',
-{
-  method: 'GET',
-
-  headers: headers
-})
-.then(function(res) {
-    return res.json();
-}).then(function(body) {
-    console.log(body);
-});
-
-```
-
-```ruby
-require 'rest-client'
-require 'json'
-
-headers = {
-  'Accept' => 'application/json'
-}
-
-result = RestClient.get '/api/steam/{app_id}',
-  params: {
-  }, headers: headers
-
-p JSON.parse(result)
-
-```
-
-```python
-import requests
-headers = {
-  'Accept': 'application/json'
-}
-
-r = requests.get('/api/steam/{app_id}', headers = headers)
-
-print(r.json())
-
-```
-
-```php
-<?php
-
-require 'vendor/autoload.php';
-
-$headers = array(
-    'Accept' => 'application/json',
-);
-
-$client = new \GuzzleHttp\Client();
-
-// Define array of request body.
-$request_body = array();
-
-try {
-    $response = $client->request('GET','/api/steam/{app_id}', array(
-        'headers' => $headers,
-        'json' => $request_body,
-       )
-    );
-    print_r($response->getBody()->getContents());
- }
- catch (\GuzzleHttp\Exception\BadResponseException $e) {
-    // handle exception or api errors.
-    print_r($e->getMessage());
- }
-
- // ...
-
-```
-
-```java
-URL obj = new URL("/api/steam/{app_id}");
-HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-con.setRequestMethod("GET");
-int responseCode = con.getResponseCode();
-BufferedReader in = new BufferedReader(
-    new InputStreamReader(con.getInputStream()));
-String inputLine;
-StringBuffer response = new StringBuffer();
-while ((inputLine = in.readLine()) != null) {
-    response.append(inputLine);
-}
-in.close();
-System.out.println(response.toString());
-
-```
-
-```go
-package main
-
-import (
-       "bytes"
-       "net/http"
-)
-
-func main() {
-
-    headers := map[string][]string{
-        "Accept": []string{"application/json"},
-    }
-
-    data := bytes.NewBuffer([]byte{jsonReq})
-    req, err := http.NewRequest("GET", "/api/steam/{app_id}", data)
-    req.Header = headers
-
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    // ...
-}
-
-```
-
-`GET /api/steam/{app_id}`
-
-*Detail game dari Steam*
-
-Ambil detail game langsung dari Steam Store API.
-
-<h3 id="get_steam_details_api_steam__app_id__get-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|app_id|path|string|true|none|
-
-> Example responses
-
-> 200 Response
-
-```json
-null
-```
-
-<h3 id="get_steam_details_api_steam__app_id__get-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Successful Response|Inline|
-|422|[Unprocessable Entity](https://tools.ietf.org/html/rfc2518#section-10.3)|Validation Error|[HTTPValidationError](#schemahttpvalidationerror)|
-
-<h3 id="get_steam_details_api_steam__app_id__get-responseschema">Response Schema</h3>
-
-<aside class="success">
-This operation does not require authentication
-</aside>
-
-# Schemas
-
-<h2 id="tocS_HTTPValidationError">HTTPValidationError</h2>
-<!-- backwards compatibility -->
-<a id="schemahttpvalidationerror"></a>
-<a id="schema_HTTPValidationError"></a>
-<a id="tocShttpvalidationerror"></a>
-<a id="tocshttpvalidationerror"></a>
+**Respons `200`:**
 
 ```json
 {
-  "detail": [
+  "token": "DX-8F3K2Q",
+  "created_at": "2026-08-10T10:00:00Z",
+  "used_at": null,
+  "used_app_id": null,
+  "used_by_ip": null
+}
+```
+
+---
+
+### `DELETE /admin/token/{token_value}`
+
+Hapus satu token berdasarkan kode token.
+
+| | |
+|---|---|
+| Autentikasi | Header `x-api-key` |
+| Rate limit | Tidak |
+
+**Path parameter:**
+
+| Parameter | Tipe | Keterangan |
+|-----------|------|------------|
+| `token_value` | `string` | Kode token (`DX-XXXXX`). Wajib. |
+
+**Respons `200`:**
+```json
+{ "message": "Token deleted successfully." }
+```
+
+**Error:**
+- `404` — token tidak ditemukan.
+
+---
+
+### `DELETE /admin/tokens/clear`
+
+Hapus token massal: semua token yang **sudah terpakai** (`used_at` terisi) dan
+token yang **belum dipakai tapi berumur lebih dari 1 jam** (kedaluwarsa).
+
+| | |
+|---|---|
+| Autentikasi | Header `x-api-key` |
+| Rate limit | Tidak |
+
+**Respons `200`:**
+
+```json
+{ "deleted": 42 }
+```
+
+---
+
+### `GET /admin/tokens`
+
+Daftar semua token dengan filter, pencarian, dan paginasi.
+
+| | |
+|---|---|
+| Autentikasi | Header `x-api-key` |
+| Rate limit | Tidak |
+
+**Query parameters:**
+
+| Parameter | Tipe | Default | Keterangan |
+|-----------|------|---------|------------|
+| `status` | `string` | `null` | Filter: `active`, `used`, `expired`. |
+| `search` | `string` | `null` | Cari by kode token / `app_id` / IP. |
+| `skip` | `int` | `0` | Offset paginasi. `>= 0`. |
+| `limit` | `int` | `50` | Jumlah per halaman. Range `1–200`. |
+
+**Status token:**
+- `active` — belum dipakai & belum kedaluwarsa.
+- `used` — sudah dipakai.
+- `expired` — belum dipakai tapi lewat 1 jam.
+
+**Respons `200`:**
+
+```json
+{
+  "total": 3,
+  "items": [
     {
-      "loc": [
-        "string"
-      ],
-      "msg": "string",
-      "type": "string",
-      "input": null,
-      "ctx": {}
+      "token": "DX-8F3K2Q",
+      "created_at": "2026-08-10T10:00:00Z",
+      "used_at": null,
+      "used_app_id": null,
+      "used_by_ip": null,
+      "status": "active"
     }
   ]
 }
-
 ```
 
-HTTPValidationError
+---
 
-### Properties
+### `GET /admin/settings/hubcap-api-key`
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|detail|[[ValidationError](#schemavalidationerror)]|false|none|none|
+Lihat status konfigurasi API key Hubcap. Nilai asli **tidak pernah dikirim**,
+hanya bentuk termask (masked).
 
-<h2 id="tocS_ManifestDownloadRequest">ManifestDownloadRequest</h2>
-<!-- backwards compatibility -->
-<a id="schemamanifestdownloadrequest"></a>
-<a id="schema_ManifestDownloadRequest"></a>
-<a id="tocSmanifestdownloadrequest"></a>
-<a id="tocsmanifestdownloadrequest"></a>
-
-```json
-{
-  "app_id": 0,
-  "source": "hubcap",
-  "token": "string"
-}
-
-```
-
-ManifestDownloadRequest
-
-### Properties
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|app_id|integer|true|none|none|
-|source|string|false|none|none|
-|token|any|false|none|none|
-
-anyOf
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|» *anonymous*|string|false|none|none|
-
-or
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|» *anonymous*|null|false|none|none|
-
-#### Enumerated Values
-
-|Property|Value|
+| | |
 |---|---|
-|source|hubcap|
-|source|sushi|
+| Autentikasi | Header `x-api-key` |
+| Rate limit | Tidak |
 
-<h2 id="tocS_TokenResponse">TokenResponse</h2>
-<!-- backwards compatibility -->
-<a id="schematokenresponse"></a>
-<a id="schema_TokenResponse"></a>
-<a id="tocStokenresponse"></a>
-<a id="tocstokenresponse"></a>
+**Respons `200`:**
 
 ```json
 {
-  "token": "string",
-  "created_at": "2019-08-24T14:15:22Z",
-  "used_at": "2019-08-24T14:15:22Z",
-  "used_app_id": "string",
-  "used_by_ip": "string"
+  "configured": true,
+  "masked_value": "abcd****wxyz",
+  "updated_at": "2026-08-10T10:00:00Z"
 }
-
 ```
 
-TokenResponse
+---
 
-### Properties
+### `PUT /admin/settings/hubcap-api-key`
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|token|string|true|none|none|
-|created_at|string(date-time)|true|none|none|
-|used_at|any|false|none|none|
+Perbarui API key Hubcap (disimpan di tabel settings, bukan env).
 
-anyOf
+| | |
+|---|---|
+| Autentikasi | Header `x-api-key` |
+| Rate limit | Tidak |
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|» *anonymous*|string(date-time)|false|none|none|
+**Request body (JSON):**
 
-or
+```json
+{ "api_key": "hubcap-api-key-baru" }
+```
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|» *anonymous*|null|false|none|none|
+**Respons `200`:** sama seperti `GET` (dengan nilai masked).
 
-continued
+**Error:**
+- `400` — `api_key` kosong.
+- `401` — API key header salah.
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|used_app_id|any|false|none|none|
+---
 
-anyOf
+### `GET /admin/userstats`
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|» *anonymous*|string|false|none|none|
+Proxy user stats dari upstream Hubcap
+(`https://hubcapmanifest.com/api/v1/user/stats`) menggunakan API key Hubcap
+yang tersimpan di settings.
 
-or
+| | |
+|---|---|
+| Autentikasi | Header `x-api-key` |
+| Rate limit | Tidak |
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|» *anonymous*|null|false|none|none|
+**Respons `200`:** JSON statistik user dari Hubcap.
 
-continued
+**Error:**
+- `502` — API key Hubcap invalid/kedaluwarsa, atau gagal terhubung ke upstream.
+- `4xx/5xx` (upstream) — error dari Hubcap.
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|used_by_ip|any|false|none|none|
+---
 
-anyOf
+## Bot (`/bot`)
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|» *anonymous*|string|false|none|none|
+Prefix: `/bot`
 
-or
+---
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|» *anonymous*|null|false|none|none|
+### `POST /bot/token`
 
-<h2 id="tocS_TokenValidateRequest">TokenValidateRequest</h2>
-<!-- backwards compatibility -->
-<a id="schematokenvalidaterequest"></a>
-<a id="schema_TokenValidateRequest"></a>
-<a id="tocStokenvalidaterequest"></a>
-<a id="tocstokenvalidaterequest"></a>
+Membuat token untuk user Discord (dipanggil oleh slash command `/token` dari
+bot). Log penggunaan dicatat di tabel `TokenUsage`, dan kuota harian dicek
+berdasarkan role Discord.
+
+| | |
+|---|---|
+| Autentikasi | Header `x-api-key` (**BOT_API_KEY**) |
+| Rate limit | Tidak |
+
+**Request body (JSON):**
+
+```json
+{ "discord_id": "123456789012345678" }
+```
+
+**Alur:**
+1. Ambil role user dari Discord (`get_roles`).
+2. Tentukan limit harian dari `ROLE_LIMIT` (config):
+   - Role admin → **unlimited**.
+   - Role OG → **1 token/hari**.
+   - Role lain → ditolak (`403`).
+3. Jika bukan unlimited, hitung pemakaian hari ini dari `TokenUsage`. Jika
+   sudah mencapai limit → `429`.
+
+**Respons `200`:**
 
 ```json
 {
-  "token": "string"
+  "token": "DX-8F3K2Q",
+  "created_at": "2026-08-10T10:00:00Z",
+  "used_at": null,
+  "used_app_id": null,
+  "used_by_ip": null
 }
-
 ```
 
-TokenValidateRequest
+**Error:**
+- `401` — `x-api-key` bot salah.
+- `403` — role tidak diizinkan.
+- `429` — kuota harian habis.
 
-### Properties
+---
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|token|string|true|none|none|
+## Autentikasi
 
-<h2 id="tocS_ValidationError">ValidationError</h2>
-<!-- backwards compatibility -->
-<a id="schemavalidationerror"></a>
-<a id="schema_ValidationError"></a>
-<a id="tocSvalidationerror"></a>
-<a id="tocsvalidationerror"></a>
+| Mekanisme | Header | Endpoint |
+|-----------|--------|----------|
+| Admin API key | `x-api-key: <ADMIN_API_KEY>` | `/admin/*` |
+| Bot API key | `x-api-key: <BOT_API_KEY>` | `/bot/*` |
+| Token hubcap | Body JSON `token` | `/api/token/validate`, `/api/manifest` |
+| API key manifesthub1 | Body JSON `api_key` | `/api/manifest` |
+
+Semua pembandingan kredensial (kecuali bot key) memakai
+`secrets.compare_digest` (constant-time) dan **fail closed** jika env var
+belum diset.
+
+---
+
+## Rate Limit
+
+Rate limiting berbasis **in-memory, per-IP** (slowapi):
+
+| Endpoint | Limit |
+|----------|-------|
+| `POST /api/token/validate` | 10/menit |
+| `POST /api/manifest` | 15/menit |
+| `POST /admin/login` | 5/menit |
+
+Saat limit terlampaui, server mengembalikan `429` dengan format:
 
 ```json
-{
-  "loc": [
-    "string"
-  ],
-  "msg": "string",
-  "type": "string",
-  "input": null,
-  "ctx": {}
-}
-
+{ "detail": "Too many requests, please try again later. (10 per 1 minute)" }
 ```
-
-ValidationError
-
-### Properties
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|loc|[anyOf]|true|none|none|
-
-anyOf
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|» *anonymous*|string|false|none|none|
-
-or
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|» *anonymous*|integer|false|none|none|
-
-continued
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|msg|string|true|none|none|
-|type|string|true|none|none|
-|input|any|false|none|none|
-|ctx|object|false|none|none|
-
