@@ -414,9 +414,8 @@ function renderDashboardPage() {
   const actions = document.getElementById("topbar-actions");
 
   actions.innerHTML = `
-    <button class="btn btn-ghost btn-sm" id="refresh-btn">
+    <button class="btn btn-ghost btn-sm btn-refresh" id="refresh-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-      Refresh
     </button>
   `;
 
@@ -472,10 +471,11 @@ function renderDashboardPage() {
   `;
 
   document.getElementById("refresh-btn").addEventListener("click", () => {
-    loadHealth();
-    loadUserStats();
-    loadTokenStats();
-    loadActivity();
+    const btn = document.getElementById("refresh-btn");
+    btn.classList.add("spinning");
+    Promise.all([loadHealth(), loadUserStats(), loadTokenStats(), loadActivity()]).finally(() => {
+      btn.classList.remove("spinning");
+    });
   });
 
   loadHealth();
@@ -643,9 +643,8 @@ function renderSettingsPage() {
   const actions = document.getElementById("topbar-actions");
 
   actions.innerHTML = `
-    <button class="btn btn-ghost btn-sm" id="settings-refresh-btn">
+    <button class="btn btn-ghost btn-sm btn-refresh" id="settings-refresh-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-      Refresh
     </button>
   `;
 
@@ -679,7 +678,13 @@ function renderSettingsPage() {
     </div>
   `;
 
-  document.getElementById("settings-refresh-btn").addEventListener("click", loadHubcapApiKeySetting);
+  const settingsRefreshBtn = document.getElementById("settings-refresh-btn");
+  settingsRefreshBtn.addEventListener("click", () => {
+    settingsRefreshBtn.classList.add("spinning");
+    loadHubcapApiKeySetting().finally(() => {
+      settingsRefreshBtn.classList.remove("spinning");
+    });
+  });
   document.getElementById("hubcap-key-form").addEventListener("submit", updateHubcapApiKeySetting);
 
   loadHubcapApiKeySetting();
@@ -763,6 +768,9 @@ function renderTokensPage() {
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
       Generate token
     </button>
+    <button class="btn btn-ghost btn-sm btn-refresh" id="tokens-refresh-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+    </button>
   `;
 
   content.innerHTML = `
@@ -839,6 +847,14 @@ function renderTokensPage() {
       </div>
     </div>
   `;
+
+  const tokensRefreshBtn = document.getElementById("tokens-refresh-btn");
+  tokensRefreshBtn.addEventListener("click", () => {
+    tokensRefreshBtn.classList.add("spinning");
+    loadTokens().finally(() => {
+      tokensRefreshBtn.classList.remove("spinning");
+    });
+  });
 
   document.getElementById("generate-btn").addEventListener("click", generateToken);
 

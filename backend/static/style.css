@@ -1050,6 +1050,10 @@ tbody tr:hover {
   }
 }
 
+.btn-refresh.spinning svg {
+  animation: spin 0.7s linear infinite;
+}
+
 /* ---------- Loading skeleton ---------- */
 
 .skeleton {
