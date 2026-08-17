@@ -1,12 +1,30 @@
+import asyncio
+
+import aiohttp
 import discord
 from discord import app_commands
-import aiohttp
 
-from config import (
-    TOKEN,
-    BOT_API_KEY,
-    API_URL,
-)
+from config import BOT_API_KEY, API_URL
+
+
+async def fetch_token() -> str | None:
+    """Ambil Discord bot token dari backend (web admin -> app_settings)."""
+    headers = {
+        "X-API-Key": BOT_API_KEY
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            f"{API_URL}/bot/config",
+            headers=headers,
+        ) as resp:
+
+            if resp.status == 200:
+                data = await resp.json()
+                return data.get("discord_token")
+
+            print(f"Failed to fetch bot token from backend: {resp.status}")
+            return None
 
 
 class Client(discord.Client):
@@ -21,58 +39,89 @@ class Client(discord.Client):
     async def on_ready(self):
         print(f"Login as {self.user}")
 
+    async def generate_token(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
 
-client = Client()
+        headers = {
+            "X-API-Key": BOT_API_KEY
+        }
 
+        payload = {
+            "discord_id": str(interaction.user.id),
+            "guild_id": str(interaction.guild_id) if interaction.guild_id else None,
+            "channel_id": str(interaction.channel_id) if interaction.channel_id else None,
+        }
 
-@client.tree.command(
-    name="token",
-    description="Generate token"
-)
-async def token(interaction: discord.Interaction):
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                f"{API_URL}/bot/token",
+                json=payload,
+                headers=headers
+            ) as resp:
 
-    await interaction.response.defer(ephemeral=True)
+                data = await resp.json()
 
-    headers = {
-        "X-API-Key": BOT_API_KEY
-    }
+        if resp.status == 200:
+            await interaction.followup.send(
+                f"Token successfully generated.\n```{data['token']}```",
+                ephemeral=True
+            )
 
-    payload = {
-        "discord_id": str(interaction.user.id)
-    }
+        elif resp.status == 403:
+            await interaction.followup.send(
+                data.get("detail") or "Your role does not have access.",
+                ephemeral=True
+            )
 
-    async with aiohttp.ClientSession() as session:
-        async with session.post(
-            f"{API_URL}/bot/token",
-            json=payload,
-            headers=headers
-        ) as resp:
+        elif resp.status == 429:
+            await interaction.followup.send(
+                f"{data['detail']}",
+                ephemeral=True
+            )
 
-            data = await resp.json()
+        else:
+            await interaction.followup.send(
+                f"Error: {data.get('detail', 'Unknown error')}",
+                ephemeral=True
+            )
 
-    if resp.status == 200:
-        await interaction.followup.send(
-            f"Token successfully generated.\n```{data['token']}```",
-            ephemeral=True
+    def register_commands(self):
+        @self.tree.command(
+            name="token",
+            description="Generate token"
         )
+        async def token(interaction: discord.Interaction):
+            await self.generate_token(interaction)
 
-    elif resp.status == 403:
-        await interaction.followup.send(
-            "Your role does not have access.",
-            ephemeral=True
+
+async def main():
+    token = None
+
+    for attempt in range(1, 11):
+        token = await fetch_token()
+        if token:
+            break
+        print(f"Retrying in 5s... ({attempt}/10)")
+        await asyncio.sleep(5)
+
+    if not token:
+        print(
+            "Failed to get Discord bot token from the backend. "
+            "Make sure the backend is reachable and the token is set "
+            "in the web admin (Bot page)."
         )
+        return
 
-    elif resp.status == 429:
-        await interaction.followup.send(
-            f"{data['detail']}",
-            ephemeral=True
-        )
+    client = Client()
+    client.register_commands()
 
-    else:
-        await interaction.followup.send(
-            f"Error: {data.get('detail', 'Unknown error')}",
-            ephemeral=True
-        )
+    try:
+        await client.start(token)
+    except KeyboardInterrupt:
+        pass
+    except Exception as e:
+        print(f"Bot stopped with error: {e}")
 
 
-client.run(TOKEN)
+if __name__ == "__main__":
+    asyncio.run(main())

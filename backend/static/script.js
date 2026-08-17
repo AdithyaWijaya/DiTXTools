@@ -226,6 +226,10 @@ function router() {
       renderShell("tokens", "Token Management", "View, search, and generate Hubcap access tokens.");
       renderTokensPage();
       break;
+    case "bot":
+      renderShell("bot", "Bot", "Manage the Discord connection and which roles can generate tokens.");
+      renderBotPage();
+      break;
     case "settings":
       renderShell("settings", "Settings", "Manage upstream provider credentials.");
       renderSettingsPage();
@@ -261,6 +265,10 @@ function renderShell(activePage, title, subtitle) {
           <a href="#/tokens" class="nav-link ${activePage === "tokens" ? "active" : ""}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7l-9 9-4-4M3 17l4 4 9-9"/></svg>
             Token
+          </a>
+          <a href="#/bot" class="nav-link ${activePage === "bot" ? "active" : ""}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4M9 4h6"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/></svg>
+            Bot
           </a>
           <a href="#/settings" class="nav-link ${activePage === "settings" ? "active" : ""}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06A1.65 1.65 0 0015 19.4a1.65 1.65 0 00-1 .6 1.65 1.65 0 00-.33 1.06V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-.6-1 1.65 1.65 0 00-1.06-.33H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-.6 1.65 1.65 0 00.33-1.06V3a2 2 0 014 0v.09A1.65 1.65 0 0015 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 00.6 1 1.65 1.65 0 001.06.33H21a2 2 0 010 4h-.09A1.65 1.65 0 0019.4 15z"/></svg>
@@ -632,6 +640,386 @@ function skeletonRows(n) {
   return Array.from({ length: n })
     .map(() => `<div class="skeleton" style="height:18px;margin-bottom:10px;border-radius:6px;"></div>`)
     .join("");
+}
+
+/* =========================================================
+   Bot page
+   ========================================================= */
+
+let botRoles = [];
+let editBotRoleId = null;
+
+function renderBotPage() {
+  const content = document.getElementById("page-content");
+  const actions = document.getElementById("topbar-actions");
+
+  actions.innerHTML = `
+    <button class="btn btn-ghost btn-sm btn-refresh" id="bot-refresh-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+    </button>
+  `;
+
+  content.innerHTML = `
+    <div class="card settings-card" style="margin-bottom:1.1rem;">
+      <div class="card-title">
+        <h2>Discord Connection</h2>
+        <span class="badge expired" id="bot-conn-status">Loading</span>
+      </div>
+
+      <div class="component-row settings-current">
+        <span class="name">Guild ID</span>
+        <span class="val mono" id="bot-guild-current">Loading...</span>
+      </div>
+      <div class="component-row settings-current">
+        <span class="name">Bot token</span>
+        <span class="val mono" id="bot-token-current">—</span>
+      </div>
+
+      <form id="bot-settings-form" class="settings-form" novalidate>
+        <div class="field">
+          <label for="bot-guild-id">Guild ID</label>
+          <input type="text" id="bot-guild-id" autocomplete="off" placeholder="Discord server (guild) ID" />
+        </div>
+        <div class="field">
+          <label for="bot-token">Bot token</label>
+          <input type="password" id="bot-token" autocomplete="off" placeholder="Leave empty to keep the current token" />
+        </div>
+        <div class="field">
+          <label for="bot-allowed-channels">Allowed channels</label>
+          <textarea id="bot-allowed-channels" rows="3" placeholder="One channel ID per line, or comma-separated. Empty = allowed in all guild channels. Command still rejected in DMs."></textarea>
+        </div>
+        <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+          <button type="button" class="btn btn-secondary" id="bot-test-btn">
+            <span class="spinner"></span>
+            <span class="btn-label">Test connection</span>
+          </button>
+          <button type="submit" class="btn btn-primary" id="bot-settings-submit">
+            <span class="spinner"></span>
+            <span class="btn-label">Save</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <h2>Token Access Roles</h2>
+        <span class="hint">Roles allowed to generate tokens and their daily limit</span>
+      </div>
+
+      <div class="table-wrap" style="margin-bottom:1.1rem;">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Role ID</th>
+              <th>Daily limit</th>
+              <th style="text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="bot-roles-tbody"></tbody>
+        </table>
+      </div>
+
+      <form id="bot-role-form" class="settings-form" novalidate>
+        <div class="grid" style="grid-template-columns:repeat(3, 1fr); gap:0.8rem;">
+          <div class="field">
+            <label for="bot-role-name">Role name</label>
+            <input type="text" id="bot-role-name" autocomplete="off" placeholder="e.g. OG" />
+          </div>
+          <div class="field">
+            <label for="bot-role-id">Role ID</label>
+            <input type="text" id="bot-role-id" autocomplete="off" placeholder="Discord role ID" />
+          </div>
+          <div class="field">
+            <label for="bot-role-limit">Daily limit</label>
+            <input type="number" id="bot-role-limit" min="1" autocomplete="off" placeholder="Empty = unlimited" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" id="bot-role-submit">
+          <span class="spinner"></span>
+          <span class="btn-label">Add role</span>
+        </button>
+      </form>
+    </div>
+
+    <div class="modal-overlay" id="bot-role-modal-overlay">
+      <div class="modal">
+        <h3>Edit role</h3>
+        <form id="bot-role-edit-form" novalidate>
+          <div class="field">
+            <label for="bot-role-edit-name">Role name</label>
+            <input type="text" id="bot-role-edit-name" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="bot-role-edit-limit">Daily limit</label>
+            <input type="number" id="bot-role-edit-limit" min="1" autocomplete="off" placeholder="Empty = unlimited" />
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-ghost btn-sm" id="bot-role-edit-cancel">Cancel</button>
+            <button type="submit" class="btn btn-primary btn-sm" id="bot-role-edit-save">
+              <span class="spinner"></span>
+              <span class="btn-label">Save</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("bot-refresh-btn").addEventListener("click", () => {
+    const btn = document.getElementById("bot-refresh-btn");
+    btn.classList.add("spinning");
+    loadBotSettings().finally(() => {
+      btn.classList.remove("spinning");
+    });
+  });
+
+  document.getElementById("bot-settings-form").addEventListener("submit", saveBotSettings);
+  document.getElementById("bot-test-btn").addEventListener("click", testBotConnection);
+  document.getElementById("bot-role-form").addEventListener("submit", addBotRole);
+
+  const editModal = document.getElementById("bot-role-modal-overlay");
+  document.getElementById("bot-role-edit-cancel").addEventListener("click", () => editModal.classList.remove("open"));
+  editModal.addEventListener("click", (e) => {
+    if (e.target.id === "bot-role-modal-overlay") editModal.classList.remove("open");
+  });
+  document.getElementById("bot-role-edit-form").addEventListener("submit", saveBotRoleEdit);
+
+  loadBotSettings();
+}
+
+async function loadBotSettings() {
+  const statusEl = document.getElementById("bot-conn-status");
+  const guildEl = document.getElementById("bot-guild-current");
+  const tokenEl = document.getElementById("bot-token-current");
+  const tbody = document.getElementById("bot-roles-tbody");
+
+  statusEl.className = "badge expired";
+  statusEl.textContent = "Loading";
+  guildEl.textContent = "Loading...";
+  tokenEl.textContent = "—";
+  tbody.innerHTML = `<tr><td colspan="4"><div class="skeleton" style="height:16px;"></div></td></tr>`;
+
+  try {
+    const data = await apiFetch("/admin/bot/settings");
+    botRoles = data.roles || [];
+
+    guildEl.textContent = data.guild_configured ? data.guild_id : "Not set";
+    tokenEl.textContent = data.bot_token_configured ? data.bot_token_masked : "Not set";
+
+    const configured = data.guild_configured && data.bot_token_configured;
+    statusEl.className = `badge ${configured ? "active" : "degraded"}`;
+    statusEl.textContent = configured ? "Configured" : "Incomplete";
+
+    document.getElementById("bot-guild-id").value = data.guild_id || "";
+    document.getElementById("bot-allowed-channels").value = (data.allowed_channels || []).join("\n");
+
+    renderBotRoles(data.roles || []);
+  } catch (err) {
+    statusEl.className = "badge degraded";
+    statusEl.textContent = "Error";
+    guildEl.textContent = err.message;
+    tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><h3>Failed to load</h3><p>${escapeHtml(err.message)}</p></div></td></tr>`;
+  }
+}
+
+function renderBotRoles(roles) {
+  const tbody = document.getElementById("bot-roles-tbody");
+
+  if (!roles.length) {
+    tbody.innerHTML = `<tr><td colspan="4">
+      <div class="empty-state">
+        <h3>No roles configured</h3>
+        <p>Add a role below to allow Discord users to generate tokens.</p>
+      </div>
+    </td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = roles
+    .map(
+      (r) => `
+      <tr>
+        <td>${escapeHtml(r.name)}</td>
+        <td class="mono muted">${escapeHtml(r.role_id)}</td>
+        <td>
+          <span class="badge ${r.limit ? "active" : "used"}">${r.limit ? `${r.limit}/day` : "Unlimited"}</span>
+        </td>
+        <td>
+          <div class="token-cell" style="justify-content:flex-end;">
+            <button class="copy-btn" title="Edit role" data-edit="${r.id}" aria-label="Edit ${escapeHtml(r.name)}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="delete-token-btn" title="Delete role" data-delete="${r.id}" aria-label="Delete ${escapeHtml(r.name)}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+            </button>
+          </div>
+        </td>
+      </tr>`
+    )
+    .join("");
+
+  tbody.querySelectorAll("[data-edit]").forEach((btn) => {
+    btn.addEventListener("click", () => openBotRoleEdit(Number(btn.dataset.edit)));
+  });
+
+  tbody.querySelectorAll("[data-delete]").forEach((btn) => {
+    btn.addEventListener("click", () => deleteBotRole(Number(btn.dataset.delete)));
+  });
+}
+
+async function saveBotSettings(e) {
+  e.preventDefault();
+
+  const submitBtn = document.getElementById("bot-settings-submit");
+  const guildId = document.getElementById("bot-guild-id").value.trim();
+  const token = document.getElementById("bot-token").value.trim();
+  const allowedChannels = document.getElementById("bot-allowed-channels").value.trim();
+
+  if (!guildId) {
+    toast("Guild ID is required.", "error");
+    return;
+  }
+
+  const payload = { guild_id: guildId, allowed_channels: allowedChannels };
+  if (token) payload.bot_token = token;
+
+  submitBtn.disabled = true;
+  submitBtn.classList.add("loading");
+
+  try {
+    await apiFetch("/admin/bot/settings", {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+    document.getElementById("bot-token").value = "";
+    toast("Discord settings saved successfully.", "success");
+    loadBotSettings();
+  } catch (err) {
+    toast(err.message, "error");
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.classList.remove("loading");
+  }
+}
+
+async function testBotConnection() {
+  const btn = document.getElementById("bot-test-btn");
+  const guildId = document.getElementById("bot-guild-id").value.trim();
+  const token = document.getElementById("bot-token").value.trim();
+
+  if (!guildId) {
+    toast("Guild ID is required.", "error");
+    return;
+  }
+
+  const payload = { guild_id: guildId };
+  if (token) payload.bot_token = token;
+
+  btn.disabled = true;
+  btn.classList.add("loading");
+
+  try {
+    const res = await apiFetch("/admin/bot/test", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    toast(res.detail, res.ok ? "success" : "error");
+  } catch (err) {
+    toast(err.message, "error");
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove("loading");
+  }
+}
+
+async function addBotRole(e) {
+  e.preventDefault();
+
+  const submitBtn = document.getElementById("bot-role-submit");
+  const name = document.getElementById("bot-role-name").value.trim();
+  const roleId = document.getElementById("bot-role-id").value.trim();
+  const limitRaw = document.getElementById("bot-role-limit").value.trim();
+
+  if (!name || !roleId) {
+    toast("Role name and role ID are required.", "error");
+    return;
+  }
+
+  const payload = { name, role_id: roleId, limit: limitRaw ? Number(limitRaw) : null };
+
+  submitBtn.disabled = true;
+  submitBtn.classList.add("loading");
+
+  try {
+    await apiFetch("/admin/bot/roles", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    document.getElementById("bot-role-name").value = "";
+    document.getElementById("bot-role-id").value = "";
+    document.getElementById("bot-role-limit").value = "";
+    toast("Role added successfully.", "success");
+    loadBotSettings();
+  } catch (err) {
+    toast(err.message, "error");
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.classList.remove("loading");
+  }
+}
+
+function openBotRoleEdit(id) {
+  const role = botRoles.find((r) => r.id === id);
+  if (!role) return;
+
+  editBotRoleId = id;
+  document.getElementById("bot-role-edit-name").value = role.name;
+  document.getElementById("bot-role-edit-limit").value = role.limit ?? "";
+  document.getElementById("bot-role-modal-overlay").classList.add("open");
+}
+
+async function saveBotRoleEdit(e) {
+  e.preventDefault();
+
+  if (editBotRoleId === null) return;
+
+  const saveBtn = document.getElementById("bot-role-edit-save");
+  const name = document.getElementById("bot-role-edit-name").value.trim();
+  const limitRaw = document.getElementById("bot-role-edit-limit").value.trim();
+
+  const payload = { name, limit: limitRaw ? Number(limitRaw) : null };
+
+  saveBtn.disabled = true;
+  saveBtn.classList.add("loading");
+
+  try {
+    await apiFetch(`/admin/bot/roles/${editBotRoleId}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+    document.getElementById("bot-role-modal-overlay").classList.remove("open");
+    toast("Role updated successfully.", "success");
+    loadBotSettings();
+  } catch (err) {
+    toast(err.message, "error");
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.classList.remove("loading");
+  }
+}
+
+async function deleteBotRole(id) {
+  if (!confirm("Delete this role?")) return;
+
+  try {
+    await apiFetch(`/admin/bot/roles/${id}`, { method: "DELETE" });
+    toast("Role deleted successfully.", "success");
+    loadBotSettings();
+  } catch (err) {
+    toast(err.message, "error");
+  }
 }
 
 /* =========================================================

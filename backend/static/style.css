@@ -612,13 +612,28 @@ p {
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .field input:focus,
-.field select:focus {
+.field select:focus,
+.field textarea:focus {
   border-color: var(--purple);
   outline: none;
   box-shadow: 0px 0px 0px 3px var(--purple-10);
 }
-.field input::placeholder {
+.field input::placeholder,
+.field textarea::placeholder {
   color: var(--text-secondary);
+}
+.field textarea {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-standard);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 72px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .toolbar {

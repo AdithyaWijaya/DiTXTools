@@ -456,9 +456,175 @@ yang tersimpan di settings.
 
 ---
 
+### `GET /admin/bot/settings`
+
+Ambil konfigurasi Discord (guild ID + bot token) dan daftar role akses token.
+Guild ID dan bot token diambil dari tabel `app_settings`, dengan fallback ke
+env (`DISCORD_GUILD_ID`, `DISCORD_BOT_TOKEN`) selama belum diatur via web admin.
+
+| | |
+|---|---|
+| Autentikasi | Header `x-api-key` |
+| Rate limit | Tidak |
+
+**Respons `200`:**
+
+```json
+{
+  "guild_id": "1369588046789607444",
+  "guild_configured": true,
+  "bot_token_configured": true,
+  "bot_token_masked": "MTUy****Nk78",
+  "allowed_channels": ["111111111111111111", "222222222222222222"],
+  "updated_at": null,
+  "roles": [
+    {
+      "id": 1,
+      "role_id": "1476581248221839501",
+      "name": "OG",
+      "limit": 1,
+      "created_at": "2026-08-16T10:00:00Z"
+    }
+  ]
+}
+```
+
+---
+
+### `PUT /admin/bot/settings`
+
+Simpan konfigurasi Discord. Field yang dikirim (bukan null) akan diupdate;
+bot token kosong diabaikan sehingga token lama tetap terpakai.
+
+| | |
+|---|---|
+| Autentikasi | Header `x-api-key` |
+| Rate limit | Tidak |
+
+**Request body (JSON):**
+
+```json
+{
+  "guild_id": "1369588046789607444",
+  "bot_token": "MTUy...",
+  "allowed_channels": "111111111111111111\n222222222222222222"
+}
+```
+
+`allowed_channels` opsional; dipisah koma/newline, kosong = semua channel
+guild diizinkan (perintah tetap ditolak di DM).
+
+**Respons `200`:** sama seperti `GET /admin/bot/settings`.
+
+---
+
+### `POST /admin/bot/test`
+
+Uji koneksi Discord (cek apakah bot token valid dan bot bisa mengakses guild).
+Guild ID/token yang tidak dikirim memakai nilai yang tersimpan saat ini.
+
+| | |
+|---|---|
+| Autentikasi | Header `x-api-key` |
+| Rate limit | Tidak |
+
+**Request body (JSON):**
+
+```json
+{ "guild_id": "1369588046789607444", "bot_token": "MTUy..." }
+```
+
+**Respons `200`:**
+
+```json
+{ "ok": true, "detail": "Connected. Bot has access to the guild." }
+```
+
+---
+
+### `GET /admin/bot/roles`
+
+Ambil daftar role akses token. `limit: null` berarti unlimited.
+
+---
+
+### `POST /admin/bot/roles`
+
+Tambahkan role akses token.
+
+| | |
+|---|---|
+| Autentikasi | Header `x-api-key` |
+| Rate limit | Tidak |
+
+**Request body (JSON):**
+
+```json
+{ "role_id": "1476581248221839501", "name": "OG", "limit": 1 }
+```
+
+`limit` opsional; `null`/kosong = unlimited. **Error:** `400` jika role ID sudah
+terdaftar.
+
+---
+
+### `PUT /admin/bot/roles/{role_id}`
+
+Edit role (nama / limit). Kirim `"limit": null` untuk unlimited.
+
+| | |
+|---|---|
+| Autentikasi | Header `x-api-key` |
+| Rate limit | Tidak |
+
+**Request body (JSON):**
+
+```json
+{ "name": "OG", "limit": 5 }
+```
+
+**Error:** `404` — role tidak ditemukan.
+
+---
+
+### `DELETE /admin/bot/roles/{role_id}`
+
+Hapus role akses token.
+
+| | |
+|---|---|
+| Autentikasi | Header `x-api-key` |
+| Rate limit | Tidak |
+
+**Error:** `404` — role tidak ditemukan.
+
+---
+
 ## Bot (`/bot`)
 
 Prefix: `/bot`
+
+---
+
+### `GET /bot/config`
+
+Digunakan bot Discord untuk mengambil token login dari backend saat **startup**
+(paling hemat: tanpa polling berkala). Sumber token: web admin → **Bot**
+(`app_settings`), dengan fallback env. Setelah token diubah di web admin, bot
+perlu di-restart sekali agar memakai token baru.
+
+| | |
+|---|---|
+| Autentikasi | Header `x-api-key` (**BOT_API_KEY**) |
+| Rate limit | Tidak |
+
+**Respons `200`:**
+
+```json
+{ "discord_token": "MTUy..." }
+```
+
+**Error:** `404` — token Discord belum dikonfigurasi di web admin.
 
 ---
 
@@ -476,16 +642,28 @@ berdasarkan role Discord.
 **Request body (JSON):**
 
 ```json
-{ "discord_id": "123456789012345678" }
+{
+  "discord_id": "123456789012345678",
+  "guild_id": "1369588046789607444",
+  "channel_id": "1234567890123456789"
+}
 ```
 
+`guild_id` / `channel_id` dikirim oleh bot; kalau kosong, dianggap DM dan
+ditolak (`403`).
+
 **Alur:**
-1. Ambil role user dari Discord (`get_roles`).
-2. Tentukan limit harian dari `ROLE_LIMIT` (config):
-   - Role admin → **unlimited**.
-   - Role OG → **1 token/hari**.
-   - Role lain → ditolak (`403`).
-3. Jika bukan unlimited, hitung pemakaian hari ini dari `TokenUsage`. Jika
+1. Cek izin channel: perintah ditolak (`403`) jika dipakai lewat **DM**
+   (`guild_id` kosong), di **guild lain** (jika guild diatur), atau di
+   **channel** yang tidak ada di daftar `discord_allowed_channels`
+   (kosong = semua channel guild diizinkan).
+2. Ambil role user dari Discord (`get_roles`).
+3. Tentukan limit harian dari tabel `bot_roles` (dikelola lewat web admin →
+   menu **Bot**). Selama belum ada role di DB, fallback ke `ROLE_LIMIT` di env:
+   - `limit: null` → **unlimited**.
+   - `limit: n` → **n token/hari**.
+   - Role tidak terdaftar → ditolak (`403`).
+4. Jika bukan unlimited, hitung pemakaian hari ini dari `TokenUsage`. Jika
    sudah mencapai limit → `429`.
 
 **Respons `200`:**
@@ -502,7 +680,7 @@ berdasarkan role Discord.
 
 **Error:**
 - `401` — `x-api-key` bot salah.
-- `403` — role tidak diizinkan.
+- `403` — DM, guild/channel tidak diizinkan, atau role tidak diizinkan.
 - `429` — kuota harian habis.
 
 ---

@@ -3,12 +3,33 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.services.discord_service import get_roles
+from app.services.settings_service import get_discord_config, get_discord_allowed_channels
 from app.dependencies import get_db, verify_bot_key, get_daily_limit
 from app.models import TokenUsage, Token
 from app.utils import generate_token
 from app.schemas import TokenResponse, DiscordRequest
 
 router = APIRouter(prefix="/bot",tags=["Bot"],)
+
+@router.get("/config")
+def get_bot_config(
+    db: Session = Depends(get_db),
+    _: None = Depends(verify_bot_key),
+):
+    """
+    Dipakai bot Discord untuk mengambil token login langsung dari web admin
+    (app_settings / env fallback), jadi token tidak perlu lagi disimpan di env
+    bot. Token berubah dari admin => bot mendeteksi dan reconnect otomatis.
+    """
+    config = get_discord_config(db)
+
+    if not config["bot_token"]:
+        raise HTTPException(
+            status_code=404,
+            detail="Discord bot token is not configured. Set it in the admin Bot page.",
+        )
+
+    return {"discord_token": config["bot_token"]}
 
 @router.post("/token", response_model=TokenResponse)
 async def create_discord_token(
@@ -17,11 +38,35 @@ async def create_discord_token(
     _: None = Depends(verify_bot_key),
 ):
 
+    # Hanya boleh dipakai di dalam server, bukan lewat DM
+    if not request.guild_id:
+        raise HTTPException(
+            status_code=403,
+            detail="This command can only be used inside the server, not in DMs."
+        )
+
+    config = get_discord_config(db)
+
+    # Kalau guild diatur, pastikan perintah dipakai di guild yang sama
+    if config["guild_id"] and request.guild_id != config["guild_id"]:
+        raise HTTPException(
+            status_code=403,
+            detail="This command is not available in this server."
+        )
+
+    # Kalau ada daftar channel yang diizinkan, pastikan channel cocok
+    allowed_channels = get_discord_allowed_channels(db)
+    if allowed_channels and (not request.channel_id or request.channel_id not in allowed_channels):
+        raise HTTPException(
+            status_code=403,
+            detail="This command can only be used in allowed channels."
+        )
+
     # Ambil role user langsung dari Discord
-    roles = await get_roles(request.discord_id)
+    roles = await get_roles(db, request.discord_id)
 
     # Tentukan limit berdasarkan role
-    limit = get_daily_limit(roles)
+    limit = get_daily_limit(db, roles)
 
     if limit == 0:
         raise HTTPException(

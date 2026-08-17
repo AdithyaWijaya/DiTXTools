@@ -29,6 +29,25 @@ class TokenUsage(Base):
         nullable=False,
     )
 
+class BotRole(Base):
+    __tablename__ = "bot_roles"
+
+    id = Column(Integer, primary_key=True)
+    role_id = Column(String, unique=True, index=True, nullable=False)
+    name = Column(String, nullable=False, default="")
+    # Daily token limit. None = unlimited.
+    limit = Column(Integer, nullable=True)
+    created_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
 
 class AppSetting(Base):
     __tablename__ = "app_settings"
