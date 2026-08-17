@@ -29,3 +29,4 @@ dist-ssr
 
 frontend_ditxtools-DESIGN.md
 .vercel
+.env*
