@@ -257,7 +257,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
               WebkitTextFillColor: "transparent",
             }}
           >
-            MuanifestGenX
+            MuanifestGen
           </span>
         </h1>
 
