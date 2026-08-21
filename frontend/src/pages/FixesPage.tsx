@@ -14,15 +14,15 @@ const fixes = [
     title: "DiTXFixer (Required)",
     description:
       "Fix that will solve the problem of games disappearing, changing to purchase, no internet connection. Extract and copy dwmapi.dll, xinput1_4.dll and OpenSteamTool.dll to your Steam root directory. Create a Lua config directory (for example C:\\Program Files (x86)\\Steam\\config\\lua) and place your Lua scripts there. NOT C:\\Program Files (x86)\\Steam\\config\\stplug-in. If there is still no internet connection, try placing the manifest in C:\\Program Files (x86)\\Steam\\depotcache.",
-    url: "https://github.com/OpenSteam001/OpenSteamTool/releases/latest/download/OpenSteamTool-1.4.8-Debug.zip",
-    download: "OpenSteamTool-1.4.8-Debug.zip",
+    url: "https://github.com/madoiscool/BetterSteamTools/releases/latest/download/OpenSteamTool-v1.0.0-Debug.zip",
+    download: "OpenSteamTool-v1.0.0-Debug.zip",
   },
   {
     icon: "cloud",
     title: "Cloud Redirect (Clouds Save)",
     description:
       "What this tool does is redirect Steam Cloud requests for games that are injected to Google Drive/OneDrive/a local folder, including AutoCloud games. Everything is native inside the Steam Client, but the actual data is read/written to and from your cloud account. This was much harder to do than just redirecting read/write to an AppID that your account owns, but it was fun to make. It also is less likely to piss off Valve.",
-    url: "https://github.com/Selectively11/CloudRedirect/releases/download/v2.6.3/CloudRedirect.exe",
+    url: "https://github.com/Selectively11/CloudRedirect/releases/download/v2.6.5/CloudRedirect.exe",
     download: "CloudRedirect.exe",
   }
 ];
