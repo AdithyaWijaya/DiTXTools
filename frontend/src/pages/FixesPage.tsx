@@ -13,7 +13,7 @@ const fixes = [
     icon: "wrench",
     title: "DiTXFixer (Required)",
     description:
-      "Fix that will solve the problem of games disappearing, changing to purchase, no internet connection. Extract and copy dwmapi.dll, xinput1_4.dll and OpenSteamTool.dll to your Steam root directory. Create a Lua config directory (for example C:\\Program Files (x86)\\Steam\\config\\lua) and place your Lua scripts there. NOT C:\\Program Files (x86)\\Steam\\config\\stplug-in. If there is still no internet connection, try placing the manifest in C:\\Program Files (x86)\\Steam\\depotcache.",
+      "Fix that will solve the problem of games disappearing, changing to purchase, no internet connection. Extract and copy dwmapi.dll, xinput1_4.dll and OpenSteamTool.dll to your Steam root directory. If there is still no internet connection, try placing the manifest in C:\\Program Files (x86)\\Steam\\depotcache.",
     url: "https://github.com/madoiscool/BetterSteamTools/releases/latest/download/OpenSteamTool-v1.0.0-Debug.zip",
     download: "OpenSteamTool-v1.0.0-Debug.zip",
   },
