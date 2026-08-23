@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import ManifestPage from './pages/ManifestPage';
 import FixesPage from './pages/FixesPage';
+import Admin from './pages/Admin';
 import { getPageFromPath, navigate } from './router';
 
 export default function App() {
@@ -21,12 +22,18 @@ export default function App() {
 
   return (
     <>
-      <Navbar currentPage={currentPage} onNavigate={navigate} />
-      <main>
-        {currentPage === 'home' && <HomePage onNavigate={navigate} />}
-        {currentPage === 'manifest' && <ManifestPage />}
-        {currentPage === 'fixes' && <FixesPage />}
-      </main>
+      {currentPage === 'admin' ? (
+        <Admin />
+      ) : (
+        <>
+          <Navbar currentPage={currentPage} onNavigate={navigate} />
+          <main>
+            {currentPage === 'home' && <HomePage onNavigate={navigate} />}
+            {currentPage === 'manifest' && <ManifestPage />}
+            {currentPage === 'fixes' && <FixesPage />}
+          </main>
+        </>
+      )}
     </>
   );
 }

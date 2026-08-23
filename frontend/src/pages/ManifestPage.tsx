@@ -219,7 +219,7 @@ export default function ManifestPage() {
       // download manifest di POST /api/manifest.
       // Token dikirim lewat JSON body (bukan query string) supaya tidak
       // ikut tercatat di access log server/proxy.
-      const res = await fetch(`${API_URL}/token/validate`, {
+      const res = await fetch(`${API_URL}/api/token/validate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: nextToken }),
@@ -274,7 +274,7 @@ export default function ManifestPage() {
         limit: '8',
         appid: String(mode === 'appid'),
       });
-      const res = await fetch(`${API_URL}/search?${params.toString()}`);
+      const res = await fetch(`${API_URL}/api/search?${params.toString()}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const games: Game[] = Array.isArray(data) ? data : data.results ?? data.games ?? data.data ?? [];
@@ -337,8 +337,8 @@ export default function ManifestPage() {
     setLoading(true);
 
     const [statusRes, steamRes] = await Promise.allSettled([
-      fetch(`${API_URL}/status/${appId}`).then(r => r.ok ? r.json() as Promise<StatusResult> : Promise.reject(`HTTP ${r.status}`)),
-      fetch(`${API_URL}/steam/${appId}`).then(r => r.ok ? r.json() as Promise<SteamResult> : Promise.reject(`HTTP ${r.status}`)),
+      fetch(`${API_URL}/api/status/${appId}`).then(r => r.ok ? r.json() as Promise<StatusResult> : Promise.reject(`HTTP ${r.status}`)),
+      fetch(`${API_URL}/api/steam/${appId}`).then(r => r.ok ? r.json() as Promise<SteamResult> : Promise.reject(`HTTP ${r.status}`)),
     ]);
 
     let bannerUrl: string | null = null;
@@ -411,7 +411,7 @@ export default function ManifestPage() {
         payload.api_key = manifestHubApiKey.trim();
       }
 
-      const res = await fetch(`${API_URL}/manifest`, {
+      const res = await fetch(`${API_URL}/api/manifest`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
