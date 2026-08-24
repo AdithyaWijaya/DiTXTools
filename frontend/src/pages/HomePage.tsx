@@ -1,6 +1,5 @@
 import { useState } from "react";
 import "./css/HomePage.css";
-import Footer from "../components/Footer";
 type Page = "home" | "manifest" | "fixes";
 
 interface HomePageProps {
@@ -778,7 +777,6 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           </a>
         </div>
       </section>
-      <Footer />
     </div>
   );
 }

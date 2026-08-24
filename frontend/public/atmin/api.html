@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DiTXTools API</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --pulse-glow: #10b981;
+        --animation-duration: 0.6s;
+      }
+
+      body {
+        justify-content: center;
+        align-items: center;
+        font-family: "Inter", sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background: var(--dark-bg);
+        background:
+          radial-gradient(
+            ellipse at top left,
+            rgba(99, 102, 241, 0.12) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            ellipse at bottom right,
+            rgba(168, 85, 247, 0.1) 0%,
+            transparent 50%
+          ),
+          linear-gradient(135deg, #0a0a1a 0%, #0f0a1f 50%, #0a0f1a 100%);
+        color: var(--text-primary);
+        line-height: 1.6;
+      }
+
+      .hero {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 1.6rem;
+        position: relative;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        border: 2px solid #a855f7;
+        border-radius: 20px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        margin: auto;
+        width: min(68vw, 520px);
+        animation: fadeInUp 1s ease-out;
+        animation-fill-mode: both;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 6.4vw, 4rem);
+        font-weight: 700;
+        margin-bottom: 0.8rem;
+        z-index: 2;
+        position: relative;
+      }
+
+      .dit-text {
+        color: #a855f7;
+        text-shadow: 0 2px 10px rgba(168, 85, 247, 0.5);
+      }
+
+      .api-text {
+        color: #fbbf24;
+        text-shadow: 0 2px 10px rgba(251, 191, 36, 0.5);
+      }
+
+      .subtitle {
+        font-size: clamp(0.96rem, 2.4vw, 1.44rem);
+        font-weight: 300;
+        margin-bottom: 2.4rem;
+        opacity: 1 !important;
+        color: #ffffff !important;
+        z-index: 3;
+        position: relative;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+      }
+
+      .status-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 1.2rem;
+        margin-bottom: 2.4rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        z-index: 2;
+        position: relative;
+        min-width: 240px;
+      }
+
+      .status-card.off {
+        border: 2px solid red;
+      }
+
+      .status-card.on {
+        border: 2px solid #10b981;
+      }
+
+      .status-card.error {
+        border: 2px solid orange;
+      }
+
+      .status-card {
+        transition: border 0.3s ease;
+      }
+
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+        font-size: 1.44rem;
+        font-weight: 700;
+        color: #ffffff !important;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      }
+
+      .status-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+      }
+
+      .status-on {
+        background: #10b981;
+        box-shadow: 0 0 20px #059669;
+      }
+
+      .status-off {
+        background: red;
+        box-shadow: 0 0 15px red;
+      }
+
+      .check-btn {
+        margin-top: 1.2rem;
+        padding: 0.64rem 1.2rem;
+        border-radius: 10px;
+        border: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        background: #a855f7;
+        color: white;
+        transition: 0.2s;
+      }
+
+      .check-btn:hover {
+        background: #9333ea;
+        transform: scale(1.05);
+      }
+
+      footer {
+        padding: 1.6rem;
+        text-align: center;
+        opacity: 1 !important;
+        color: #ffffff !important;
+        font-size: 0.75rem;
+        z-index: 3;
+        position: relative;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      @media (max-width: 768px) {
+        .hero {
+          padding: 1.2rem;
+          border-radius: 14px;
+          width: min(90vw, 400px);
+        }
+
+        h1 {
+          font-size: 1.8rem;
+        }
+
+        .subtitle {
+          font-size: 0.85rem;
+          margin-bottom: 1.6rem;
+        }
+
+        .status-card {
+          width: 100%;
+          max-width: 100%;
+          padding: 1.2rem;
+          min-width: unset;
+        }
+
+        .status-indicator {
+          font-size: 1rem;
+        }
+
+        footer {
+          font-size: 0.7rem;
+          padding: 0.8rem;
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          box-shadow: 0 0 20px var(--pulse-glow);
+        }
+        50% {
+          transform: scale(1.1);
+          box-shadow:
+            0 0 30px var(--pulse-glow),
+            0 0 40px var(--pulse-glow);
+        }
+      }
+
+      h1 {
+        animation: fadeInUp 1s ease-out 0.2s both;
+        opacity: 0;
+      }
+
+      .subtitle {
+        animation: fadeInUp 1s ease-out 0.4s both;
+        opacity: 0;
+      }
+
+      .status-card {
+        animation: fadeInUp 1s ease-out 0.6s both;
+        opacity: 0;
+      }
+
+      footer {
+        animation: fadeInUp 1s ease-out 0.8s both;
+        opacity: 0;
+      }
+
+      .status-on {
+        animation: pulse 2s ease-in-out infinite;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="hero">
+      <h1>
+        <span class="dit-text">DiTX</span><span class="api-text"> API</span>🔑
+      </h1>
+      <p class="subtitle">Check API status.</p>
+
+      <div id="card" class="status-card" style="margin-bottom: 0">
+        <div class="status-indicator">
+          <div id="dot" class="status-dot status-off"></div>
+          <span id="status">Not checked yet</span>
+        </div>
+      </div>
+      <button id="checkBtn" onclick="checkApiStatus()" class="check-btn">
+        Check API Status
+      </button>
+      <footer>
+        <p>© 2026 DIT API. Made with ❤️</p>
+      </footer>
+    </div>
+    <script>
+      async function checkApiStatus() {
+        const card = document.getElementById("card");
+        const dot = document.getElementById("dot");
+        const status = document.getElementById("status");
+        const checkBtn = document.getElementById("checkBtn");
+
+        checkBtn.textContent = "Checking...";
+        checkBtn.disabled = true;
+
+        try {
+          const response = await fetch("http://localhost:8000/health", {
+            cache: "no-store",
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          const redisHealthy = data.components?.redis?.status === "healthy";
+
+          const databaseHealthy =
+            data.components?.database?.status === "healthy";
+
+          const manifestHealthy =
+            data.components?.manifest_storage?.status === "healthy" &&
+            data.components?.manifest_storage?.exists === true;
+
+          const apiHealthy =
+            data.status === "healthy" &&
+            redisHealthy &&
+            databaseHealthy &&
+            manifestHealthy;
+
+          if (apiHealthy) {
+            card.className = "status-card on";
+            dot.classList.replace("status-off", "status-on");
+            status.textContent = "API Healthy";
+          } else {
+            card.className = "status-card error";
+            dot.classList.replace("status-on", "status-off");
+
+            const failed = [];
+            if (!redisHealthy) failed.push("Redis");
+            if (!databaseHealthy) failed.push("Database");
+            if (!manifestHealthy) failed.push("Manifest Storage");
+
+            status.textContent =
+              failed.length > 0
+                ? `API Degraded (${failed.join(", ")})`
+                : "API Degraded";
+          }
+        } catch (error) {
+          console.error(error);
+
+          card.className = "status-card off";
+          dot.classList.replace("status-on", "status-off");
+          status.textContent = "API Offline";
+        } finally {
+          checkBtn.textContent = "Check API Status";
+          checkBtn.disabled = false;
+        }
+      }
+
+      checkApiStatus();
+    </script>
+  </body>
+</html>

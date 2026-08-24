@@ -1,29 +1,33 @@
-import { useSyncExternalStore } from 'react';
-import './index.css';
-import Navbar from './components/Navbar';
-import HomePage from './pages/HomePage';
-import ManifestPage from './pages/ManifestPage';
-import FixesPage from './pages/FixesPage';
-import Admin from './pages/Admin';
-import { getPageFromPath, navigate } from './router';
+import { useSyncExternalStore } from "react";
+import "./index.css";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import HomePage from "./pages/HomePage";
+import ManifestPage from "./pages/ManifestPage";
+import FixesPage from "./pages/FixesPage";
+import Admin from "./pages/Admin";
+import Api from "./pages/Api";
+import { getPageFromPath, navigate } from "./router";
 
 export default function App() {
   const currentPage = useSyncExternalStore(
     (onStoreChange) => {
-      window.addEventListener('popstate', onStoreChange);
-      window.addEventListener('router-navigate', onStoreChange);
+      window.addEventListener("popstate", onStoreChange);
+      window.addEventListener("router-navigate", onStoreChange);
       return () => {
-        window.removeEventListener('popstate', onStoreChange);
-        window.removeEventListener('router-navigate', onStoreChange);
+        window.removeEventListener("popstate", onStoreChange);
+        window.removeEventListener("router-navigate", onStoreChange);
       };
     },
     () => getPageFromPath(window.location.pathname),
   );
 
-  return (
+return (
     <>
       {currentPage === 'admin' ? (
         <Admin />
+      ) : currentPage === 'api' ? (
+        <Api />
       ) : (
         <>
           <Navbar currentPage={currentPage} onNavigate={navigate} />
@@ -32,6 +36,7 @@ export default function App() {
             {currentPage === 'manifest' && <ManifestPage />}
             {currentPage === 'fixes' && <FixesPage />}
           </main>
+          <Footer />
         </>
       )}
     </>

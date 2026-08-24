@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { API_URL } from "../config";
-import Footer from '../components/Footer';
 
 export function formatUtcTimestamp(timestamp: string): string {
   const date = new Date(
@@ -1331,7 +1330,6 @@ export default function ManifestPage() {
           </div>
         </div>
       )}
-       <Footer />
     </div>
   );
 }

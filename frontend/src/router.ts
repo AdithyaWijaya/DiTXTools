@@ -1,16 +1,18 @@
-export type Page = 'home' | 'manifest' | 'fixes' | 'admin';
+export type Page = 'home' | 'manifest' | 'fixes' | 'admin' | 'api';
 
 export const PAGE_PATHS: Record<Page, string> = {
   home: '/',
   manifest: '/manifest',
   fixes: '/fixes',
   admin: '/admin',
+  api: '/api',
 };
 
 export function getPageFromPath(path: string): Page {
   if (path === '/manifest') return 'manifest';
   if (path === '/fixes') return 'fixes';
   if (path === '/admin') return 'admin';
+  if (path === '/api') return 'api';
   return 'home';
 }
 

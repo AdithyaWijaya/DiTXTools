@@ -1,5 +1,3 @@
-import Footer from "../components/Footer";
-
 const fixes = [
   {
     icon: "gear",
@@ -194,8 +192,6 @@ export default function FixesPage() {
           <FixCard key={fix.title} {...fix} />
         ))}
       </div>
-
-      <Footer />
     </div>
   );
 }
