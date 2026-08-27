@@ -11,17 +11,9 @@ HUBCAP_APIKEY: str = os.getenv("HUBCAP_APIKEY")
 DATABASE_URL: str = os.getenv("DATABASE_URL")
 ADMIN_API_KEY = os.getenv("ADMIN_API_KEY")
 
-# Kredensial untuk login web admin (username/password). ADMIN_API_KEY tetap
-# dipakai sebagai "session token" setelah login berhasil -- jadi tidak ada
-# mekanisme auth baru, hanya gerbang login di depan key yang sudah ada.
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
-# Daftar origin frontend yang diizinkan, dipisah koma di .env, contoh:
-#   ALLOWED_ORIGINS=https://ditxtools.com,https://www.ditxtools.com
-# Kalau kosong, fallback ke wildcard "*" TANPA credentials (lihat main.py)
-# supaya tidak memakai kombinasi allow_origins="*" + allow_credentials=True
-# yang tidak disarankan (dan ditolak sebagian browser).
 ALLOWED_ORIGINS = [
     origin.strip()
     for origin in os.getenv("ALLOWED_ORIGINS", "").split(",")
@@ -67,7 +59,6 @@ MANIFEST_PROVIDERS = {
     },
 }
 
-# Role Discord
 DISCORD_GUILD_ID: str = os.getenv("DISCORD_GUILD_ID")
 DISCORD_BOT_TOKEN: str = os.getenv("DISCORD_BOT_TOKEN")
 ROLE_ADMIN: str = os.getenv("ROLE_ADMIN")
