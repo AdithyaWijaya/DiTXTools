@@ -1,4 +1,5 @@
 import os
+import tempfile
 from dotenv import load_dotenv
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -69,3 +70,7 @@ ROLE_LIMIT = {
     ROLE_ADMIN: None,
     ROLE_OG: 1,
 }
+
+DOWNLOAD_EXPIRE_SECONDS = 10 * 60
+TEMP_DOWNLOAD_DIR = os.path.join(tempfile.gettempdir(), "ditx_downloads")
+os.makedirs(TEMP_DOWNLOAD_DIR, exist_ok=True)

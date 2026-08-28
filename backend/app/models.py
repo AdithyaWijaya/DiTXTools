@@ -1,3 +1,4 @@
+import secrets
 from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, String, Text, DateTime, func
 from app.database import Base
@@ -11,6 +12,20 @@ class Token(Base):
     used_at = Column(DateTime(timezone=True),nullable=True)
     used_app_id = Column(Text,nullable=True)
     used_by_ip = Column(Text,nullable=True)
+
+class DownloadSession(Base):
+    __tablename__ = "download_sessions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    download_id = Column(String(64), unique=True, index=True, nullable=False)
+    file_path = Column(String(512), nullable=False)
+    filename = Column(String(256), nullable=False)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    @staticmethod
+    def generate_download_id() -> str:
+        return secrets.token_urlsafe(32)
 
 class TokenUsage(Base):
     __tablename__ = "token_usage"

@@ -1,10 +1,13 @@
 import httpx
+import os
+import secrets
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request, Query
-from fastapi.responses import StreamingResponse, JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from sqlalchemy.orm import Session
 
-from app.config import MANIFEST_PROVIDERS
-from app.dependencies import get_db
+from app.config import MANIFEST_PROVIDERS, DOWNLOAD_EXPIRE_SECONDS, TEMP_DOWNLOAD_DIR
+from app.dependencies import get_db, cleanup_expired_sessions
 from app.schemas import ManifestDownloadRequest, TokenValidateRequest
 from app.limiter import limiter
 from app.services.token_service import validate_token, claim_token, release_token
@@ -14,6 +17,7 @@ from app.services.manifest_service import (
     get_status,
     search_game,
 )
+from app.models import DownloadSession
 
 router = APIRouter(
     prefix="/api",
@@ -39,10 +43,8 @@ async def download_manifest(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    token_db = None
-    
     provider = MANIFEST_PROVIDERS.get(data.source)
-   
+
     if provider is None:
         raise HTTPException(
             status_code=400,
@@ -52,31 +54,13 @@ async def download_manifest(
     required_auth = provider.get("requires")
 
     if required_auth == "token":
-
         if not data.token:
             raise HTTPException(
                 status_code=400,
                 detail="Token is required."
             )
+        validate_token(db=db, token=data.token)
 
-        token_db = validate_token(
-            db=db,
-            token=data.token,
-        )
-
-        claimed = claim_token(
-            db=db,
-            token=token_db,
-            app_id=data.app_id,
-            ip=request.client.host if request.client else None,
-        )
-
-        if not claimed:
-            raise HTTPException(
-                400,
-                "Token has already been used."
-            )
-        
     elif required_auth == "api_key":
         if not data.api_key:
             raise HTTPException(
@@ -93,29 +77,104 @@ async def download_manifest(
     )
 
     if response.status_code == 404:
-        if required_auth == "token":
-            release_token(db=db, token=token_db)
-
         raise HTTPException(
             404,
             "Manifest is not available."
         )
 
     if response.status_code != 200:
-        if required_auth == "token":
-            release_token(db=db, token=token_db)
-
         raise HTTPException(
             response.status_code,
             "Failed to fetch manifest."
         )
 
-    return StreamingResponse(
-        iter([response.content]),
+    if required_auth == "token":
+        token_db = validate_token(db=db, token=data.token)
+        claimed = claim_token(
+            db=db,
+            token=token_db,
+            app_id=data.app_id,
+            ip=request.client.host if request.client else None,
+        )
+        if not claimed:
+            raise HTTPException(
+                400,
+                "Token has already been used."
+            )
+
+    def sanitize_filename(name: str) -> str:
+        import unicodedata
+        name = unicodedata.normalize('NFKD', name)
+        name = name.encode('ascii', 'ignore').decode('ascii')
+        for char in ['/', '\\', ':', '*', '?', '"', '<', '>', '|']:
+            name = name.replace(char, '-')
+        import re
+        name = re.sub(r'[\s-]+', ' ', name).strip()
+        return name
+
+
+    safe_name = ""
+    if data.game_name:
+        safe_name = "_" + sanitize_filename(data.game_name)
+    filename = f"{data.app_id}{safe_name}.zip"
+    download_id = secrets.token_urlsafe(32)
+    file_path = os.path.join(TEMP_DOWNLOAD_DIR, f"{download_id}.zip")
+
+    try:
+        with open(file_path, "wb") as f:
+            f.write(response.content)
+    except OSError:
+        if required_auth == "token":
+            release_token(db=db, token=token_db)
+        raise HTTPException(500, "Failed to save manifest file.")
+
+    expires_at = datetime.now(timezone.utc) + timedelta(seconds=DOWNLOAD_EXPIRE_SECONDS)
+    session = DownloadSession(
+        download_id=download_id,
+        file_path=file_path,
+        filename=filename,
+        expires_at=expires_at,
+    )
+    db.add(session)
+    db.commit()
+
+    return JSONResponse({
+        "success": True,
+        "download_url": f"/api/manifest/download/{download_id}",
+        "filename": filename,
+    })
+
+
+@router.get("/manifest/download/{download_id}")
+async def download_manifest_file(
+    download_id: str,
+    db: Session = Depends(get_db),
+):
+    cleanup_expired_sessions(db)
+
+    session = db.query(DownloadSession).filter(DownloadSession.download_id == download_id).first()
+    if not session:
+        raise HTTPException(404, "Download session not found.")
+
+    if session.expires_at < datetime.now(timezone.utc):
+        try:
+            if os.path.exists(session.file_path):
+                os.remove(session.file_path)
+        except OSError:
+            pass
+        db.delete(session)
+        db.commit()
+        raise HTTPException(410, "Download link has expired.")
+
+    if not os.path.exists(session.file_path):
+        db.delete(session)
+        db.commit()
+        raise HTTPException(404, "Download file not found.")
+
+    return FileResponse(
+        path=session.file_path,
         media_type="application/zip",
-        headers={
-            "Content-Disposition": f'attachment; filename="{data.app_id}.zip"'
-        },
+        filename=session.filename,
     )
 
 @router.get("/status/{app_id}")

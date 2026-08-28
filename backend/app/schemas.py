@@ -17,6 +17,7 @@ class ManifestDownloadRequest(BaseModel):
     source: Literal["hubcap", "manifesthub1", "sushi", "ryuu", "yaszz"] = "hubcap"
     token: str | None = None
     api_key: str | None = None
+    game_name: str | None = None
 
 class TokenValidateRequest(BaseModel):
     token: str = Field(..., min_length=1)

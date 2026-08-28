@@ -79,27 +79,7 @@ function formatBytes(b: number): string {
 }
 
 function escHtml(str: string): string {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-function safeFilenamePart(value: string): string {
-  return value.trim().replace(/[\\/:*?"<>|]+/g, '').replace(/\s+/g, ' ');
-}
-
-function filenameFromContentDisposition(header: string | null): string | null {
-  if (!header) return null;
-
-  const utf8Match = header.match(/filename\*=UTF-8''([^;]+)/i);
-  if (utf8Match?.[1]) {
-    try {
-      return decodeURIComponent(utf8Match[1]);
-    } catch {
-      return utf8Match[1];
-    }
-  }
-
-  const simpleMatch = header.match(/filename="([^"]+)"/i) ?? header.match(/filename=([^;]+)/i);
-  return simpleMatch?.[1]?.trim() ?? null;
+  return str.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"');
 }
 
 function unavailableManifestMessage(currentSource: ManifestSource): string {
@@ -395,6 +375,7 @@ export default function ManifestPage() {
       const payload: Record<string, unknown> = {
         app_id: Number(detail.appId),
         source,
+        game_name: detail.name,
       };
       if (source === 'hubcap') {
         payload.token = licenseToken;
@@ -436,18 +417,14 @@ export default function ManifestPage() {
         throw new Error(`HTTP ${res.status} — ${text.slice(0, 120)}`);
       }
 
-      const blob = await res.blob();
-      const headerFilename = filenameFromContentDisposition(res.headers.get('content-disposition'));
-      const fallbackGameName = safeFilenamePart(detail.name || '');
-      const fallbackFilename = fallbackGameName ? `${detail.appId}_${fallbackGameName}.zip` : `${detail.appId}.zip`;
-      const downloadFilename = headerFilename || fallbackFilename;
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = downloadFilename;
-      document.body.appendChild(a); a.click(); a.remove();
-      URL.revokeObjectURL(url);
-      setDlStatus(`✓ ${downloadFilename} downloaded.`);
+      const result = await res.json();
+      if (!result.success || !result.download_url) {
+        throw new Error('Invalid download response from server.');
+      }
+
+      const downloadUrl = `${API_URL}${result.download_url}`;
+      window.location.href = downloadUrl;
+      setDlStatus(`✓ Download started: ${result.filename}`);
 
       if (source === 'hubcap') {
         setLicenseToken('');

@@ -1,11 +1,11 @@
+import os
 from fastapi import Header, HTTPException
 import secrets
-
+from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
-
-from app.config import ADMIN_API_KEY, ADMIN_USERNAME, ADMIN_PASSWORD, BOT_API_KEY, ROLE_LIMIT
+from app.config import ADMIN_API_KEY, ADMIN_USERNAME, ADMIN_PASSWORD, BOT_API_KEY, ROLE_LIMIT, DOWNLOAD_EXPIRE_SECONDS
 from app.database import SessionLocal
-from app.models import BotRole
+from app.models import BotRole, DownloadSession
 
 def get_db():
     db = SessionLocal()
@@ -69,3 +69,37 @@ def _env_daily_limit(role_ids: list[str]):
         limit = max(limit, value)
 
     return limit
+
+def cleanup_expired_sessions(db: Session) -> None:
+    try:
+        expired_sessions = (
+            db.query(DownloadSession)
+            .filter(DownloadSession.expires_at < datetime.now(timezone.utc))
+            .all()
+        )
+        for session in expired_sessions:
+            try:
+                if os.path.exists(session.file_path):
+                    os.remove(session.file_path)
+            except OSError:
+                pass
+            db.delete(session)
+        db.commit()
+    except Exception:
+        db.rollback()
+
+def create_download_session(db: Session, file_path: str, filename: str) -> DownloadSession:
+    cleanup_expired_sessions(db)
+    download_id = DownloadSession.generate_download_id()
+    expires_at = datetime.now(timezone.utc) + timedelta(seconds=DOWNLOAD_EXPIRE_SECONDS)
+    session = DownloadSession(
+        download_id=download_id,
+        file_path=file_path,
+        filename=filename,
+        expires_at=expires_at,
+    )
+    db.add(session)
+    db.commit()
+    db.refresh(session)
+    return session
+
