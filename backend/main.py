@@ -18,22 +18,15 @@ models.Base.metadata.create_all(bind=engine)
 
 app= FastAPI (docs_url=None, redoc_url=None, openapi_url=None)
 
-# Rate limiting
 app.state.limiter = limiter
 
 @app.exception_handler(RateLimitExceeded)
 async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
-    # Format response disamakan dengan HTTPException biasa (pakai key
-    # "detail") supaya frontend tidak perlu menangani bentuk error terpisah.
     return JSONResponse(
         status_code=429,
         content={"detail": f"Too many requests, please try again later. ({exc.detail})"},
     )
 
-# Middleware
-# Kalau ALLOWED_ORIGINS diisi di .env, pakai origin spesifik + credentials.
-# Kalau tidak, fallback ke wildcard TANPA credentials (kombinasi wildcard +
-# credentials=True tidak disarankan dan akan ditolak sebagian browser).
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS or ["*"],
@@ -42,7 +35,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Static
 app.mount("/static", StaticFiles(directory=f"{BASE_DIR}/static"), name="static")
 
 
@@ -58,7 +50,6 @@ def favicon():
 def admin_panel():
     return FileResponse(f"{BASE_DIR}/templates/admin.html")
 
-# API Status
 @app.get("/health")
 async def health_proxy():
     try:
@@ -76,11 +67,8 @@ async def health_proxy():
             detail=f"Failed to connect to upstream API: {str(e)}"
         )
     
-# Web admin
 app.include_router(admin_router)
 
-# Manifest API
 app.include_router(api_router)
 
-# keperluan bot discord
 app.include_router(bot_router)
