@@ -238,7 +238,6 @@ async def proxy_user_stats(
                 detail="The Hubcap API key is invalid or has expired. Update the API key in the Settings page.",
             )
 
-        # Forward status code dan response dari server tujuan
         raise HTTPException(
             status_code=e.response.status_code,
             detail=e.response.json() if e.response.content else e.response.text,

@@ -36,10 +36,6 @@ def get_hubcap_api_key(db: Session) -> str | None:
     return HUBCAP_APIKEY
 
 def get_discord_config(db: Session) -> dict:
-    """
-    Ambil konfigurasi Discord (guild ID + bot token) dari DB dulu,
-    fallback ke env selama belum diatur lewat web admin.
-    """
     guild_setting = get_setting(db, DISCORD_GUILD_ID_SETTING)
     token_setting = get_setting(db, DISCORD_BOT_TOKEN_SETTING)
 
@@ -49,11 +45,6 @@ def get_discord_config(db: Session) -> dict:
     }
 
 def get_discord_allowed_channels(db: Session) -> list[str]:
-    """
-    Daftar channel Discord yang diizinkan untuk perintah /token.
-    Disimpan sebagai string dipisah koma/newline di app_settings.
-    Kosong = semua channel dalam guild diizinkan.
-    """
     setting = get_setting(db, DISCORD_ALLOWED_CHANNELS_SETTING)
     if not setting or not setting.value:
         return []

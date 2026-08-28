@@ -3,7 +3,6 @@ import string
 from sqlalchemy.orm import Session
 from app.models import Token
 
-# Generate Token
 ALPHABET = string.ascii_uppercase + string.digits
 
 def generate_token(db: Session) -> str:

@@ -1,7 +1,6 @@
 import httpx
 
 async def get_steam_game_data(app_id: str) -> dict | None:
-    """Ambil data game dari Steam Store API."""
     url = "https://store.steampowered.com/api/appdetails"
 
     async with httpx.AsyncClient(

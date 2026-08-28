@@ -28,17 +28,6 @@ async def validate_hubcap_token(
     data: TokenValidateRequest,
     db: Session = Depends(get_db),
 ):
-    """
-    Cek validitas token (ditemukan, belum digunakan, belum kedaluwarsa)
-    TANPA menandainya sebagai terpakai. Token baru benar-benar ditandai
-    'used' (diklaim secara atomic) saat dipakai untuk mendownload manifest
-    di endpoint POST /manifest (lihat claim_token di token_service.py).
-
-    Token dikirim lewat JSON body (bukan query string) supaya tidak ikut
-    tercatat di access log server/proxy/Referer header. Endpoint ini juga
-    dibatasi rate limit-nya supaya tidak jadi alat gratis untuk brute-force
-    menebak token yang valid.
-    """
     validate_token(db=db, token=data.token)
     return {"valid": True, "message": "Token is valid."}
 
@@ -62,7 +51,6 @@ async def download_manifest(
 
     required_auth = provider.get("requires")
 
-    # HubCap wajib memakai token
     if required_auth == "token":
 
         if not data.token:
@@ -76,9 +64,6 @@ async def download_manifest(
             token=data.token,
         )
 
-        # Klaim token secara atomic SEBELUM memanggil provider, supaya dua
-        # request bersamaan dengan token yang sama tidak bisa lolos berdua
-        # (lihat docstring claim_token di token_service.py).
         claimed = claim_token(
             db=db,
             token=token_db,
@@ -99,7 +84,6 @@ async def download_manifest(
                 detail="API key is required."
             )
 
-    # Download dari provider
     response = await fetch_manifest(
         app_id=data.app_id,
         source=data.source,
@@ -109,8 +93,6 @@ async def download_manifest(
     )
 
     if response.status_code == 404:
-        # Download gagal bukan karena token, lepas kembali klaimnya supaya
-        # token masih bisa dipakai user di kesempatan berikutnya.
         if required_auth == "token":
             release_token(db=db, token=token_db)
 
@@ -194,7 +176,6 @@ async def get_steam_details(app_id: str):
     if game_data is None:
         raise HTTPException(status_code=404, detail="Game not found on Steam")
 
-    # Normalize response supaya frontend tidak perlu diubah
     return JSONResponse(content={
         "name":        game_data.get("name"),
         "headerImage": game_data.get("header_image"),

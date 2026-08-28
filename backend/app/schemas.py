@@ -30,8 +30,6 @@ class AdminLoginResponse(BaseModel):
     username: str
 
 class TokenListItem(TokenResponse):
-    # status dihitung di server: active (belum dipakai & belum expired),
-    # used (sudah dipakai), expired (belum dipakai tapi lewat 1 jam)
     status: Literal["active", "used", "expired"]
 
 class TokenListResponse(BaseModel):

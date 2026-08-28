@@ -1,20 +1,4 @@
-/* =========================================================
-   DIT Admin — SPA client (single file)
-
-   Hash-based router (#/login, #/dashboard, #/tokens) --
-   chosen so this panel can still be served directly as
-   static files (StaticFiles(html=True) in main.py) without
-   needing server rewrite rules: hash changes never trigger
-   a new request to the server, so switching menus never
-   reloads the page.
-
-   The auth model has not changed: login exchanges the
-   username/password for the ADMIN_API_KEY already used by
-   every /admin endpoint, stores it in sessionStorage, and
-   sends it as an x-api-key header on every admin request.
-   ========================================================= */
-
-const API_BASE = ""; // e.g. "https://api.yourdomain.com" if the backend is on a different origin
+const API_BASE = "";
 
 const AUTH_KEY = "dit_admin_key";
 const AUTH_USER = "dit_admin_username";
@@ -46,10 +30,6 @@ class ApiError extends Error {
   }
 }
 
-/**
- * Wrapper around fetch() that attaches x-api-key, parses JSON,
- * and redirects to #/login if the server returns 401 (invalid/expired key).
- */
 async function apiFetch(path, options = {}) {
   const headers = Object.assign({}, options.headers || {});
 
@@ -104,8 +84,6 @@ function logout() {
   navigate("login");
 }
 
-/* ---------- Toast ---------- */
-
 function toast(message, type = "success") {
   let stack = document.getElementById("toast-stack");
   if (!stack) {
@@ -125,8 +103,6 @@ function toast(message, type = "success") {
     setTimeout(() => el.remove(), 250);
   }, 3200);
 }
-
-/* ---------- Copy to clipboard ---------- */
 
 async function copyText(text, btn) {
   try {
@@ -152,8 +128,6 @@ async function copyText(text, btn) {
   }
   toast("Copied to clipboard.", "success");
 }
-
-/* ---------- Formatting helpers ---------- */
 
 function formatDate(iso) {
   if (!iso) return "—";
@@ -185,12 +159,8 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-/* =========================================================
-   Router
-   ========================================================= */
-
 function parseRoute() {
-  const raw = window.location.hash.replace(/^#\/?/, ""); // remove "#" or "#/"
+  const raw = window.location.hash.replace(/^#\/?/, ""); 
   const [pathPart, queryPart] = raw.split("?");
   const page = (pathPart || "dashboard").trim() || "dashboard";
   const params = new URLSearchParams(queryPart || "");
@@ -200,7 +170,7 @@ function parseRoute() {
 function navigate(path) {
   const target = `#/${path}`;
   if (window.location.hash === target) {
-    router(); // identical hash does not trigger hashchange, render manually
+    router(); 
   } else {
     window.location.hash = target;
   }
@@ -244,10 +214,6 @@ function router() {
 
 window.addEventListener("hashchange", router);
 window.addEventListener("DOMContentLoaded", router);
-
-/* =========================================================
-   Shared shell (sidebar + topbar) for authenticated pages
-   ========================================================= */
 
 function renderShell(activePage, title, subtitle) {
   const app = document.getElementById("app");
@@ -323,10 +289,6 @@ function renderShell(activePage, title, subtitle) {
     }
   });
 }
-
-/* =========================================================
-   Login page
-   ========================================================= */
 
 function renderLoginPage(params) {
   const app = document.getElementById("app");
@@ -412,10 +374,6 @@ function renderLoginPage(params) {
     errorBox.classList.remove("show");
   }
 }
-
-/* =========================================================
-   Dashboard page
-   ========================================================= */
 
 function renderDashboardPage() {
   const content = document.getElementById("page-content");
@@ -641,10 +599,6 @@ function skeletonRows(n) {
     .map(() => `<div class="skeleton" style="height:18px;margin-bottom:10px;border-radius:6px;"></div>`)
     .join("");
 }
-
-/* =========================================================
-   Bot page
-   ========================================================= */
 
 let botRoles = [];
 let editBotRoleId = null;
@@ -1022,10 +976,6 @@ async function deleteBotRole(id) {
   }
 }
 
-/* =========================================================
-   Settings page
-   ========================================================= */
-
 function renderSettingsPage() {
   const content = document.getElementById("page-content");
   const actions = document.getElementById("topbar-actions");
@@ -1132,10 +1082,6 @@ async function updateHubcapApiKeySetting(e) {
     submitBtn.classList.remove("loading");
   }
 }
-
-/* =========================================================
-   Tokens page
-   ========================================================= */
 
 const tokensState = {
   pageSize: 10,

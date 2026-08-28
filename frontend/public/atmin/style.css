@@ -1,11 +1,3 @@
-/* =========================================================
-   DIT Admin — Design tokens
-   Palet warna diambil dari frontend_ditxtools-DESIGN.md
-   (dark theme, ungu #A855F7 sebagai primary accent).
-   Font: Inter untuk semua UI text, JetBrains Mono khusus
-   untuk data teknis (token, ID, timestamp, angka).
-   ========================================================= */
-
 :root {
   /* Backgrounds */
   --bg: #0f0f13;

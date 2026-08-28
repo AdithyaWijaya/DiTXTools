@@ -35,7 +35,6 @@ class BotRole(Base):
     id = Column(Integer, primary_key=True)
     role_id = Column(String, unique=True, index=True, nullable=False)
     name = Column(String, nullable=False, default="")
-    # Daily token limit. None = unlimited.
     limit = Column(Integer, nullable=True)
     created_at = Column(
         DateTime(timezone=True),

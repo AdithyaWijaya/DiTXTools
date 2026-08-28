@@ -58,10 +58,6 @@ async def get_roles(db: Session, discord_id: str) -> list[str]:
 
 
 async def verify_discord_connection(guild_id: str, bot_token: str) -> tuple[bool, str]:
-    """
-    Cek apakah bot token valid dan bot bisa mengakses guild tertentu.
-    Dipakai tombol "Test connection" di halaman admin Bot.
-    """
     headers = {
         "Authorization": f"Bot {bot_token}"
     }

@@ -44,19 +44,6 @@ def claim_token(
     app_id: int,
     ip: str,
 ) -> bool:
-    """
-    Tandai token sebagai terpakai secara ATOMIC di level database.
-
-    Klausa WHERE used_at IS NULL dicek ulang oleh database tepat saat
-    UPDATE dieksekusi. Jadi kalau dua request bersamaan punya token yang
-    sama dan keduanya sudah lolos validate_token() (karena dibaca sebelum
-    salah satu menulis), hanya SATU UPDATE yang benar-benar mengubah baris
-    (rowcount == 1). Request lainnya akan mendapat rowcount == 0, yang
-    berarti dia "kalah" race dan harus ditolak -- mencegah token sekali
-    pakai terpakai lebih dari sekali (TOCTOU race condition).
-
-    Mengembalikan True jika token berhasil diklaim oleh pemanggil ini.
-    """
 
     now = datetime.now(timezone.utc)
 
@@ -85,13 +72,6 @@ def release_token(
     db: Session,
     token: Token,
 ) -> None:
-    """
-    Lepas kembali klaim atas token (set used_at jadi NULL lagi).
-
-    Dipakai saat token sudah diklaim via claim_token(), tapi proses
-    download manifest dari provider ternyata gagal -- supaya user tidak
-    kehilangan tokennya karena kesalahan provider, bukan kesalahan dia.
-    """
 
     db.query(Token).filter(Token.id == token.id).update(
         {
