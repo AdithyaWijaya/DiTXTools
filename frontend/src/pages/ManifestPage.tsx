@@ -125,7 +125,6 @@ async function extractErrorMessage(res: Response): Promise<string> {
     if (typeof parsed?.detail === 'string') return parsed.detail;
     if (typeof parsed?.message === 'string') return parsed.message;
   } catch {
-    // fall through to raw text
   }
   return text || `HTTP ${res.status}`;
 }
@@ -213,11 +212,6 @@ export default function ManifestPage() {
     setTokenChecking(true);
     setTokenError('');
     try {
-      // Cek validitas token (ada, belum dipakai, belum kedaluwarsa) tanpa
-      // mengonsumsinya. Token baru benar-benar "terpakai" saat dipakai untuk
-      // download manifest di POST /api/manifest.
-      // Token dikirim lewat JSON body (bukan query string) supaya tidak
-      // ikut tercatat di access log server/proxy.
       const res = await fetch(`${API_URL}/api/token/validate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -299,7 +293,6 @@ export default function ManifestPage() {
     setQuery(val);
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
-    // Title mode only accepts game titles; App ID-only input is rejected.
     if (searchMode === 'title' && val.trim().length > 0 && /^\d+$/.test(val.trim())) {
       setDropdownOpen(true);
       setDropdownItems([]);
@@ -420,7 +413,6 @@ export default function ManifestPage() {
         const text = await extractErrorMessage(res);
         const lower = text.toLowerCase();
 
-        // One-time token: not found, already used, expired, or required.
         const isTokenIssue =
           source === 'hubcap' &&
           (lower.includes('token not found') ||
@@ -457,9 +449,6 @@ export default function ManifestPage() {
       URL.revokeObjectURL(url);
       setDlStatus(`✓ ${downloadFilename} downloaded.`);
 
-      // One-time token: once used for a download, the backend has already
-      // marked it as used. Clear the frontend state too so the next download
-      // must provide a fresh token.
       if (source === 'hubcap') {
         setLicenseToken('');
       }
@@ -514,7 +503,6 @@ export default function ManifestPage() {
       display: 'flex',
       flexDirection: 'column',
     }}>
-      {/* Header */}
       <div style={{
         width: '100%',
         padding: '30px 24px 0px',
@@ -529,9 +517,7 @@ export default function ManifestPage() {
         </p>
       </div>
 
-      {/* Main content */}
       <div style={{ width: '100%', maxWidth: 600, margin: '0 auto', padding: '48px 24px 80px' }}>
-        {/* Source selector */}
         <div style={{
           marginBottom: 20,
           padding: 16,
@@ -547,7 +533,7 @@ export default function ManifestPage() {
               {
                 value: 'ryuu' as const,
                 title: 'TanJungHoo',
-                subtitle: 'Free', //(Recommended)
+                subtitle: 'Free',
               },
               {
                 value: 'sushi' as const,
@@ -707,7 +693,6 @@ export default function ManifestPage() {
           </p>
         </div>
 
-        {/* Search */}
         <div style={{ position: 'relative', marginBottom: 24 }}>
           <div style={{ display: 'flex', gap: 10, alignItems: 'stretch' }}>
             <div style={{ position: 'relative', flex: 1 }}>
@@ -741,7 +726,6 @@ export default function ManifestPage() {
               />
             </div>
 
-            {/* Search mode toggle */}
             <div
               role="group"
               aria-label="Search by"
@@ -787,7 +771,6 @@ export default function ManifestPage() {
             </div>
           </div>
 
-          {/* Loading bar */}
           {loading && (
             <div style={{
               height: 2, background: 'rgba(42,45,62,0.6)',
@@ -802,7 +785,6 @@ export default function ManifestPage() {
             </div>
           )}
 
-          {/* Dropdown */}
           {dropdownOpen && (
             <div style={{
               position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0,
@@ -842,7 +824,6 @@ export default function ManifestPage() {
           )}
         </div>
 
-        {/* Detail card */}
         {detail && (
           <div style={{
             background: 'rgba(17,24,39,0.7)',
@@ -853,7 +834,6 @@ export default function ManifestPage() {
           }}>
             <style>{`@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
 
-            {/* Banner */}
             {detail.bannerUrl ? (
               <img
                 src={detail.bannerUrl}
@@ -872,7 +852,6 @@ export default function ManifestPage() {
               </div>
             )}
 
-            {/* Header */}
             <div style={{
               padding: '20px 24px 16px',
               borderBottom: '1px solid rgba(42,45,62,0.5)',
@@ -891,7 +870,6 @@ export default function ManifestPage() {
               </span>
             </div>
 
-            {/* Stats grid */}
             <div style={{
               padding: '20px 24px',
               display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16,
@@ -940,7 +918,6 @@ export default function ManifestPage() {
               )}
             </div>
 
-            {/* Download footer */}
             <div style={{ padding: '16px 24px 24px', borderTop: '1px solid rgba(42,45,62,0.5)' }}>
               <button
                 disabled={!detail.canDownload || dlLoading}

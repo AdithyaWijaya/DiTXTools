@@ -195,7 +195,6 @@ const TEAM = [
 export default function HomePage({ onNavigate }: HomePageProps) {
   return (
     <div style={{ paddingTop: 64, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      {/* ── Hero ── */}
       <section
         className="hero-section"
         style={{
@@ -210,7 +209,6 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           textAlign: "center",
         }}
       >
-        {/* Glow orbs */}
         <div
           style={{
             position: "absolute",
@@ -274,7 +272,6 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           manifests, applying game fixes.
         </p>
 
-        {/* Install command block */}
         <div
           style={{
             marginBottom: 16,
@@ -298,7 +295,6 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           <CopyCommand />
         </div>
 
-        {/* CTA Buttons */}
         <div
           className="cta-buttons"
           style={{
@@ -390,7 +386,6 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           </button>
         </div>
 
-        {/* Stats row */}
         <div className="stats-row">
           {[
             { val: "119k+", label: "Total Games" },
@@ -431,7 +426,6 @@ export default function HomePage({ onNavigate }: HomePageProps) {
         </div>
       </section>
 
-      {/* ── Tools ── */}
       <section
         style={{ width: "100%", padding: "0px 24px", maxWidth: 1200, margin: "0 auto" }}
       >
@@ -562,7 +556,6 @@ export default function HomePage({ onNavigate }: HomePageProps) {
         </div>
       </section>
 
-      {/* ── Team ── */}
       <section
         style={{
           padding: "100px 24px",
@@ -670,7 +663,6 @@ export default function HomePage({ onNavigate }: HomePageProps) {
         </div>
       </section>
 
-      {/* ── Discord Community ── */}
       <section
         style={{
           padding: "0px 24px",

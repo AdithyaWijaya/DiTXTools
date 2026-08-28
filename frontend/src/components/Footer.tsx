@@ -76,7 +76,6 @@ export default function Footer() {
                 textDecoration: "none",
               }}
             >
-              {/* Tooltip nama */}
               <span
                 style={{
                   position: "absolute",
@@ -101,7 +100,6 @@ export default function Footer() {
                 {link.name}
               </span>
 
-              {/* Icon */}
               {link.icon === "svg" ? (
                 <svg
                   width="20"

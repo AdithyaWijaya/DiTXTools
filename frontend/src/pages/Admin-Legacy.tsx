@@ -462,7 +462,6 @@ function DashboardPage({
       window.clearTimeout(timer);
       window.removeEventListener("admin-refresh-dashboard", load);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const components = health?.components ?? {};
@@ -650,13 +649,11 @@ function TokensPage({
   useEffect(() => {
     const timer = window.setTimeout(load, 250);
     return () => window.clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skip, status, search]);
 
   useEffect(() => {
     window.addEventListener("admin-refresh-tokens", load);
     return () => window.removeEventListener("admin-refresh-tokens", load);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skip, status, search]);
 
   const copyToken = async (token: string) => {
@@ -814,7 +811,6 @@ function BotPage({
       window.clearTimeout(timer);
       window.removeEventListener("admin-refresh-bot", load);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const saveSettings = async (event: FormEvent) => {
@@ -1099,7 +1095,6 @@ function SettingsPage({
       window.clearTimeout(timer);
       window.removeEventListener("admin-refresh-settings", load);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const save = async (event: FormEvent) => {

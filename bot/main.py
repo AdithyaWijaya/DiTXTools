@@ -1,14 +1,10 @@
 import asyncio
-
 import aiohttp
 import discord
 from discord import app_commands
-
 from config import BOT_API_KEY, API_URL
 
-
 async def fetch_token() -> str | None:
-    """Ambil Discord bot token dari backend (web admin -> app_settings)."""
     headers = {
         "X-API-Key": BOT_API_KEY
     }
@@ -121,7 +117,6 @@ async def main():
         pass
     except Exception as e:
         print(f"Bot stopped with error: {e}")
-
 
 if __name__ == "__main__":
     asyncio.run(main())

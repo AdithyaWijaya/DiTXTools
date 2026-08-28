@@ -46,7 +46,6 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
           boxSizing: "border-box",
         }}
       >
-        {/* Logo */}
         <a
           href="/"
           onClick={handleNav("home")}
@@ -84,7 +83,6 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
           </span>
         </a>
 
-        {/* Desktop links */}
         <div
           style={{ display: "flex", gap: 28, alignItems: "center" }}
           className="desktop-nav"
@@ -139,7 +137,6 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
               textDecoration: "none",
             }}
           >
-            {/* Tooltip */}
             <span
               style={{
                 position: "absolute",
@@ -176,7 +173,6 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
           </a>
         </div>
 
-        {/* Mobile hamburger */}
         <button
           className="hamburger"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -210,7 +206,6 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
         </button>
       </div>
 
-      {/* Mobile menu */}
       {menuOpen && (
         <div
           style={{
