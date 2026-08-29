@@ -1,14 +1,13 @@
 :root {
-  /* Backgrounds */
   --bg: #0f0f13;
   --bg-secondary: #1a1d27;
   --surface: #111827;
 
-  /* Borders */
+  
   --border-subtle: rgba(255, 255, 255, 0.05);
   --border-standard: rgba(255, 255, 255, 0.1);
 
-  /* Primary / brand */
+  
   --purple: #a855f7;
   --purple-08: rgba(168, 85, 247, 0.08);
   --purple-10: rgba(168, 85, 247, 0.1);
@@ -17,13 +16,13 @@
   --purple-30: rgba(168, 85, 247, 0.3);
   --purple-50: rgba(168, 85, 247, 0.5);
 
-  /* Accents */
+  
   --pink: #ec4899;
   --blue: #3b82f6;
   --blue-15: rgba(59, 130, 246, 0.15);
   --blue-50: rgba(59, 130, 246, 0.5);
 
-  /* Semantic */
+  
   --green: #22c55e;
   --green-15: rgba(34, 197, 94, 0.15);
   --green-50: rgba(34, 197, 94, 0.5);
@@ -34,24 +33,24 @@
   --red-15: rgba(239, 68, 68, 0.15);
   --red-50: rgba(239, 68, 68, 0.5);
 
-  /* Neutral text */
+  
   --text-primary: #fafafa;
   --text-secondary: #9ca3af;
   --text-white: #ffffff;
   --gray-10: rgba(156, 163, 175, 0.1);
   --gray-30: rgba(156, 163, 175, 0.3);
 
-  /* Typography */
+  
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", "Courier New", monospace;
 
-  /* Elevation */
+  
   --shadow-elevated: rgba(168, 85, 247, 0.4) 0px 8px 30px 0px;
   --shadow-floating: rgba(168, 85, 247, 0.4) 0px 12px 40px 0px;
   --shadow-active: rgba(168, 85, 247, 0.4) 0px 4px 20px 0px;
   --shadow-modal: rgba(0, 0, 0, 0.5) 0px 20px 60px 0px;
 
-  /* Radius scale */
+  
   --radius-sm: 8px;
   --radius-md: 10px;
   --radius-badge: 16px;
@@ -60,7 +59,7 @@
   --sidebar-w: 230px;
 }
 
-/* ---------- Reset & base ---------- */
+
 
 * {
   margin: 0;
@@ -129,7 +128,7 @@ p {
   }
 }
 
-/* ---------- Buttons ---------- */
+
 
 .btn {
   display: inline-flex;
@@ -237,7 +236,7 @@ p {
   font-size: 12.5px;
 }
 
-/* ---------- App shell ---------- */
+
 
 .app-shell {
   display: flex;
@@ -398,7 +397,7 @@ p {
   display: none;
 }
 
-/* ---------- Cards ---------- */
+
 
 .card {
   background: var(--surface);
@@ -469,7 +468,7 @@ p {
   color: var(--accent, var(--purple));
 }
 
-/* ---------- Status / badges ---------- */
+
 
 .status-row {
   display: flex;
@@ -578,7 +577,7 @@ p {
   border: 1px solid var(--red-50);
 }
 
-/* ---------- Forms ---------- */
+
 
 .field {
   display: flex;
@@ -705,7 +704,7 @@ p {
   min-height: 36px;
 }
 
-/* ---------- Table ---------- */
+
 
 .table-wrap {
   overflow-x: auto;
@@ -831,7 +830,7 @@ tbody tr:hover {
   gap: 0.5rem;
 }
 
-/* ---------- Activity list ---------- */
+
 
 .activity-list {
   display: flex;
@@ -880,7 +879,7 @@ tbody tr:hover {
   margin-top: 0.1rem;
 }
 
-/* ---------- Usage bar (dashboard userstats) ---------- */
+
 
 .usage-meta {
   display: flex;
@@ -933,7 +932,7 @@ tbody tr:hover {
   color: var(--text-secondary);
 }
 
-/* ---------- Modal ---------- */
+
 
 .modal-overlay {
   position: fixed;
@@ -1001,7 +1000,7 @@ tbody tr:hover {
   margin-top: 1.2rem;
 }
 
-/* ---------- Toast ---------- */
+
 
 #toast-stack {
   position: fixed;
@@ -1061,7 +1060,7 @@ tbody tr:hover {
   animation: spin 0.7s linear infinite;
 }
 
-/* ---------- Loading skeleton ---------- */
+
 
 .skeleton {
   background: linear-gradient(
@@ -1083,7 +1082,7 @@ tbody tr:hover {
   }
 }
 
-/* ---------- Login page ---------- */
+
 
 .login-page {
   display: flex;
@@ -1190,7 +1189,7 @@ tbody tr:hover {
   opacity: 0.7;
 }
 
-/* ---------- Settings page ---------- */
+
 
 .settings-card {
   max-width: 720px;
@@ -1204,7 +1203,7 @@ tbody tr:hover {
   border-top: 1px solid var(--border-subtle);
 }
 
-/* ---------- Responsive ---------- */
+
 
 @media (max-width: 880px) {
   .sidebar {

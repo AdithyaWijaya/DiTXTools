@@ -16,11 +16,6 @@ def get_bot_config(
     db: Session = Depends(get_db),
     _: None = Depends(verify_bot_key),
 ):
-    """
-    Dipakai bot Discord untuk mengambil token login langsung dari web admin
-    (app_settings / env fallback), jadi token tidak perlu lagi disimpan di env
-    bot. Token berubah dari admin => bot mendeteksi dan reconnect otomatis.
-    """
     config = get_discord_config(db)
 
     if not config["bot_token"]:
@@ -37,8 +32,6 @@ async def create_discord_token(
     db: Session = Depends(get_db),
     _: None = Depends(verify_bot_key),
 ):
-
-    # Hanya boleh dipakai di dalam server, bukan lewat DM
     if not request.guild_id:
         raise HTTPException(
             status_code=403,
@@ -46,26 +39,18 @@ async def create_discord_token(
         )
 
     config = get_discord_config(db)
-
-    # Kalau guild diatur, pastikan perintah dipakai di guild yang sama
     if config["guild_id"] and request.guild_id != config["guild_id"]:
         raise HTTPException(
             status_code=403,
             detail="This command is not available in this server."
         )
-
-    # Kalau ada daftar channel yang diizinkan, pastikan channel cocok
     allowed_channels = get_discord_allowed_channels(db)
     if allowed_channels and (not request.channel_id or request.channel_id not in allowed_channels):
         raise HTTPException(
             status_code=403,
             detail="This command can only be used in allowed channels."
         )
-
-    # Ambil role user langsung dari Discord
     roles = await get_roles(db, request.discord_id)
-
-    # Tentukan limit berdasarkan role
     limit = get_daily_limit(db, roles)
 
     if limit == 0:
@@ -73,8 +58,6 @@ async def create_discord_token(
             status_code=403,
             detail="Role is not allowed."
         )
-
-    # Jika bukan unlimited, cek kuota harian
     if limit is not None:
 
         today = datetime.now(timezone.utc).date()
@@ -93,15 +76,11 @@ async def create_discord_token(
                 status_code=429,
                 detail=f"Daily quota ({limit}) has been exhausted."
             )
-
-    # Generate token
     token = Token(
         token=generate_token(db)
     )
 
     db.add(token)
-
-    # Simpan log penggunaan
     db.add(
         TokenUsage(
             discord_id=request.discord_id
