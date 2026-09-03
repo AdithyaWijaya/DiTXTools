@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.services.discord_service import get_roles
@@ -8,11 +8,14 @@ from app.dependencies import get_db, verify_bot_key, get_daily_limit
 from app.models import TokenUsage, Token
 from app.utils import generate_token
 from app.schemas import TokenResponse, DiscordRequest
+from app.limiter import limiter
 
-router = APIRouter(prefix="/bot",tags=["Bot"],)
+router = APIRouter(prefix="/bot", tags=["Bot"])
 
 @router.get("/config")
+@limiter.limit("30/minute")
 def get_bot_config(
+    request: Request,
     db: Session = Depends(get_db),
     _: None = Depends(verify_bot_key),
 ):
@@ -27,8 +30,10 @@ def get_bot_config(
     return {"discord_token": config["bot_token"]}
 
 @router.post("/token", response_model=TokenResponse)
+@limiter.limit("10/minute")
 async def create_discord_token(
-    request: DiscordRequest,
+    request: Request,
+    data: DiscordRequest,
     db: Session = Depends(get_db),
     _: None = Depends(verify_bot_key),
 ):
