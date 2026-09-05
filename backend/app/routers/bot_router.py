@@ -55,7 +55,7 @@ async def create_discord_token(
             status_code=403,
             detail="This command can only be used in allowed channels."
         )
-    roles = await get_roles(db, request.discord_id)
+    roles = await get_roles(db, data.discord_id)
     limit = get_daily_limit(db, roles)
 
     if limit == 0:
@@ -70,7 +70,7 @@ async def create_discord_token(
         used = (
             db.query(TokenUsage)
             .filter(
-                TokenUsage.discord_id == request.discord_id,
+                TokenUsage.discord_id == data.discord_id,
                 func.date(TokenUsage.created_at) == today,
             )
             .count()
@@ -88,7 +88,7 @@ async def create_discord_token(
     db.add(token)
     db.add(
         TokenUsage(
-            discord_id=request.discord_id
+            discord_id=data.discord_id
         )
     )
 
