@@ -54,7 +54,7 @@ def admin_panel():
 async def health_proxy():
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get("https://hubcapmanifest.com/api/v1/health")
+            response = await client.get("")
 
         return JSONResponse(
             content=response.json(),
