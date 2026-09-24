@@ -9,6 +9,7 @@ HUBCAP_API_KEY_SETTING = "hubcap_api_key"
 DISCORD_GUILD_ID_SETTING = "discord_guild_id"
 DISCORD_BOT_TOKEN_SETTING = "discord_bot_token"
 DISCORD_ALLOWED_CHANNELS_SETTING = "discord_allowed_channels"
+DISCORD_MANIFEST_ALLOWED_CHANNELS_SETTING = "discord_manifest_allowed_channels"
 
 def get_setting(db: Session, key: str) -> AppSetting | None:
     return db.query(AppSetting).filter(AppSetting.key == key).first()
@@ -46,6 +47,18 @@ def get_discord_config(db: Session) -> dict:
 
 def get_discord_allowed_channels(db: Session) -> list[str]:
     setting = get_setting(db, DISCORD_ALLOWED_CHANNELS_SETTING)
+    if not setting or not setting.value:
+        return []
+
+    return [
+        part.strip()
+        for part in setting.value.replace("\n", ",").split(",")
+        if part.strip()
+    ]
+
+
+def get_discord_manifest_allowed_channels(db: Session) -> list[str]:
+    setting = get_setting(db, DISCORD_MANIFEST_ALLOWED_CHANNELS_SETTING)
     if not setting or not setting.value:
         return []
 

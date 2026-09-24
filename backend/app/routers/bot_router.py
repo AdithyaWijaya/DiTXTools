@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.services.discord_service import get_roles
-from app.services.settings_service import get_discord_config, get_discord_allowed_channels
+from app.services.settings_service import get_discord_config, get_discord_allowed_channels, get_discord_manifest_allowed_channels
 from app.dependencies import get_db, verify_bot_key, get_daily_limit
 from app.models import TokenUsage, Token
 from app.utils import generate_token
@@ -96,3 +96,33 @@ async def create_discord_token(
     db.refresh(token)
 
     return token
+
+
+@router.post("/manifest/verify")
+@limiter.limit("10/minute")
+async def verify_manifest_access(
+    request: Request,
+    data: DiscordRequest,
+    db: Session = Depends(get_db),
+    _: None = Depends(verify_bot_key),
+):
+    if not data.guild_id:
+        raise HTTPException(
+            status_code=403,
+            detail="This command can only be used inside the server, not in DMs."
+        )
+
+    config = get_discord_config(db)
+    if config["guild_id"] and data.guild_id != config["guild_id"]:
+        raise HTTPException(
+            status_code=403,
+            detail="This command is not available in this server."
+        )
+    allowed_channels = get_discord_manifest_allowed_channels(db)
+    if allowed_channels and (not data.channel_id or data.channel_id not in allowed_channels):
+        raise HTTPException(
+            status_code=403,
+            detail="This command can only be used in allowed channels."
+        )
+
+    return {"allowed": True}

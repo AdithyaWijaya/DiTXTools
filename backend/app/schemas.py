@@ -77,6 +77,7 @@ class BotSettingsUpdate(BaseModel):
     guild_id: str | None = None
     bot_token: str | None = None
     allowed_channels: str | None = None
+    manifest_allowed_channels: str | None = None
 
 class BotSettingsResponse(BaseModel):
     guild_id: str | None = None
@@ -84,6 +85,7 @@ class BotSettingsResponse(BaseModel):
     bot_token_configured: bool
     bot_token_masked: str | None = None
     allowed_channels: list[str] = []
+    manifest_allowed_channels: list[str] = []
     updated_at: datetime | None = None
     roles: list[BotRoleResponse] = []
 

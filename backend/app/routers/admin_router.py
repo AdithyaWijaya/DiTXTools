@@ -28,9 +28,11 @@ from app.services.settings_service import (
     DISCORD_ALLOWED_CHANNELS_SETTING,
     DISCORD_BOT_TOKEN_SETTING,
     DISCORD_GUILD_ID_SETTING,
+    DISCORD_MANIFEST_ALLOWED_CHANNELS_SETTING,
     HUBCAP_API_KEY_SETTING,
     get_discord_allowed_channels,
     get_discord_config,
+    get_discord_manifest_allowed_channels,
     get_hubcap_api_key,
     get_setting,
     set_setting,
@@ -258,7 +260,7 @@ def _build_bot_settings(db: Session) -> BotSettingsResponse:
 
     updated_ats = [
         s.updated_at
-        for s in (guild_setting, token_setting, get_setting(db, DISCORD_ALLOWED_CHANNELS_SETTING))
+        for s in (guild_setting, token_setting, get_setting(db, DISCORD_ALLOWED_CHANNELS_SETTING), get_setting(db, DISCORD_MANIFEST_ALLOWED_CHANNELS_SETTING))
         if s and s.updated_at
     ]
 
@@ -268,6 +270,7 @@ def _build_bot_settings(db: Session) -> BotSettingsResponse:
         bot_token_configured=bool(config["bot_token"]),
         bot_token_masked=_mask_secret(config["bot_token"]),
         allowed_channels=get_discord_allowed_channels(db),
+        manifest_allowed_channels=get_discord_manifest_allowed_channels(db),
         updated_at=max(updated_ats) if updated_ats else None,
         roles=roles,
     )
@@ -297,6 +300,9 @@ def update_bot_settings(
 
     if "allowed_channels" in fields and data.allowed_channels is not None:
         set_setting(db, DISCORD_ALLOWED_CHANNELS_SETTING, data.allowed_channels.strip())
+
+    if "manifest_allowed_channels" in fields and data.manifest_allowed_channels is not None:
+        set_setting(db, DISCORD_MANIFEST_ALLOWED_CHANNELS_SETTING, data.manifest_allowed_channels.strip())
 
     return _build_bot_settings(db)
 

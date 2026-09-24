@@ -639,8 +639,12 @@ function renderBotPage() {
           <input type="password" id="bot-token" autocomplete="off" placeholder="Leave empty to keep the current token" />
         </div>
         <div class="field">
-          <label for="bot-allowed-channels">Allowed channels</label>
+          <label for="bot-allowed-channels">Allowed channels (for /token)</label>
           <textarea id="bot-allowed-channels" rows="3" placeholder="One channel ID per line, or comma-separated. Empty = allowed in all guild channels. Command still rejected in DMs."></textarea>
+        </div>
+        <div class="field">
+          <label for="bot-manifest-allowed-channels">Allowed channels (for /manifest)</label>
+          <textarea id="bot-manifest-allowed-channels" rows="3" placeholder="One channel ID per line, or comma-separated. Empty = allowed in all guild channels. Command still rejected in DMs."></textarea>
         </div>
         <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
           <button type="button" class="btn btn-secondary" id="bot-test-btn">
@@ -768,6 +772,7 @@ async function loadBotSettings() {
 
     document.getElementById("bot-guild-id").value = data.guild_id || "";
     document.getElementById("bot-allowed-channels").value = (data.allowed_channels || []).join("\n");
+    document.getElementById("bot-manifest-allowed-channels").value = (data.manifest_allowed_channels || []).join("\n");
 
     renderBotRoles(data.roles || []);
   } catch (err) {
@@ -830,13 +835,14 @@ async function saveBotSettings(e) {
   const guildId = document.getElementById("bot-guild-id").value.trim();
   const token = document.getElementById("bot-token").value.trim();
   const allowedChannels = document.getElementById("bot-allowed-channels").value.trim();
+  const manifestAllowedChannels = document.getElementById("bot-manifest-allowed-channels").value.trim();
 
   if (!guildId) {
     toast("Guild ID is required.", "error");
     return;
   }
 
-  const payload = { guild_id: guildId, allowed_channels: allowedChannels };
+  const payload = { guild_id: guildId, allowed_channels: allowedChannels, manifest_allowed_channels: manifestAllowedChannels };
   if (token) payload.bot_token = token;
 
   submitBtn.disabled = true;
