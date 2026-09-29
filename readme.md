@@ -1,10 +1,8 @@
 **DiTXTools is a manifest downloader project that aims to manage game libraries effectively.**
 
-
-![DiTX](https://ditxtools.vercel.app/img/DiTXEpstein.png)
-
 ![100](https://ditxtools.vercel.app/img/pakgabenDX.png)
 
+![DiTX](https://ditxtools.vercel.app/img/DiTXEpstein.png)
 
 **Stack:**
 - Frontend: Vite, React, Typescript.
