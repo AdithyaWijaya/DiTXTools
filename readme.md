@@ -1,9 +1,9 @@
 **DiTXTools is a manifest downloader project that aims to manage game libraries effectively.**
 
 
-![DiTX](https://ditxtools.vercel.app/frontend/public/img/DiTXEpstein.png)
+![DiTX](https://ditxtools.vercel.app/img/DiTXEpstein.png)
 
-![100](https://ditxtools.vercel.app/frontend/public/img/pakgaben.png)
+![100](https://ditxtools.vercel.app/img/pakgabenDX.png)
 
 
 **Stack:**
