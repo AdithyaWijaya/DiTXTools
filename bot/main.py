@@ -135,6 +135,30 @@ class Client(discord.Client):
                 ephemeral=True
             )
 
+    async def check_health(self, interaction: discord.Interaction, session: aiohttp.ClientSession):
+        await interaction.response.defer(ephemeral=True)
+
+        headers = {"X-API-Key": BOT_API_KEY}
+
+        async with session.get(
+            f"{API_URL}/health",
+            headers=headers
+        ) as resp:
+            data = await resp.json()
+
+        if resp.status == 200:
+            status = data.get("status", "unknown")
+            upstream = data.get("upstream", {})
+            message = f"Server: **{status}**\n"
+            if upstream:
+                message += f"Upstream: **{upstream.get('status', 'unknown')}**"
+            await interaction.followup.send(message, ephemeral=True)
+        else:
+            await interaction.followup.send(
+                f"Ping failed: {data.get('detail', 'Unknown error')}",
+                ephemeral=True
+            )
+
     def register_commands(self, session: aiohttp.ClientSession):
         @self.tree.command(
             name="token",
@@ -150,6 +174,13 @@ class Client(discord.Client):
         @app_commands.describe(app_id="Steam AppID")
         async def manifest(interaction: discord.Interaction, app_id: int):
             await self.download_manifest(interaction, session, app_id)
+
+        @self.tree.command(
+            name="ping",
+            description="Ping Server"
+        )
+        async def ping(interaction: discord.Interaction):
+            await self.check_health(interaction, session)
 
 
 async def main():
