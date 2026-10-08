@@ -1177,7 +1177,7 @@ export default function ManifestPage() {
                   Insert API Key
                 </h3>
                 <p style={{ marginTop: 8, fontSize: 13, lineHeight: 1.6, color: '#9CA3AF' }}>
-                  DaRwiN is a free source manifest that provides only the manifest file, without Lua scripts; it is suitable for updating your game. DaRwiN requires your own API key. API Key can be obtained{" "} <a href="https://manifesthub1.filegear-sg.me" target="_blank" rel="noopener noreferrer" style={{color: "#A855F7",fontWeight: 600,textDecoration: "none",}}>here</a>.
+                  DaRwiN is a free source manifest that provides only the manifest file, without Lua scripts; it is suitable for updating your game. DaRwiN requires your own API key. API Key can be obtained{" "} <a href="https://manifesthub2.filegear-sg.me" target="_blank" rel="noopener noreferrer" style={{color: "#A855F7",fontWeight: 600,textDecoration: "none",}}>here</a>.
                 </p>
               </div>
               <button
